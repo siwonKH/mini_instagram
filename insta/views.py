@@ -2,7 +2,7 @@ import hashlib
 from django.shortcuts import render, redirect
 from django import views
 from django.contrib.auth import logout
-from .models import User
+from .models import User, Post
 
 
 class Home(views.View):
