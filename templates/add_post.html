@@ -4,18 +4,20 @@
 <div class="content">
     <form action="/addpost" method="post">
         {% csrf_token %}
-        <div style="align-items: center;">
+        <div class="form-group">
             <!-- 사진 -->
             <img src="https://dummyimage.com/400x400/000000/fff" alt="">
-            <input type="file" id="img" name="img" accept="image/*">
-            {% comment %} 업로드하면 자동으로바뀜 {% endcomment %}
+            <br>
+            <input type="file" class="form-control-file" id="img" name="img" accept="image/*">
+            {% comment %} 업로드하면 자동으로바뀜 -> 자바스크립트로 처리 {% endcomment %}
         </div>
+        <br>
         <div>
             <div>
                 <div>
                     <!-- 설명 -->
                     <p class="description">
-                        <input type="text" name="desc" id="desc">
+                        <input type="text" class="form-control" id="desc" placeholder="설명">
                     </p>
                 </div>
             </div>
@@ -26,11 +28,11 @@
                     <label for="pub">공개</label>
                     <input type="radio" id="priv" name="show" value="private" checked>
                     <label for="priv">비공개</label>
-                    
                 </div>
             </div>
+            <br>
         </div>
-        <button type="submit" class="btn btn-default">게시</button>
+        <button type="submit" class="btn btn-outline-dark mb-1">게시</button>
     </form>
 </div>
 {% endblock %}
