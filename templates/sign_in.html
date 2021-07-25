@@ -1,1 +1,21 @@
 <!-- 로그인 -->
+{% extends '_layout.html' %}
+
+{% block content %}
+
+<form class="row login_form" method="post"></form>
+    {% csrf_token %}
+    <div class="col-md-12 form-group">
+        <label>
+            <input aria-label="닉네임" class="form-control" aria-required="true" maxlength="50" name="username" type="text" value="" placeholder="닉네임" onfocus="this.placeholder = ''" onblur="this.placeholder = '닉네임'">
+        </label>
+    </div>
+    <div class="col-md-12 form-group">
+        <label>
+            <input aria-label="비밀번호" class="form-control" aria-required="true" name="password" type="password" value="" placeholder="비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '비밀번호'">
+        </label>
+    </div>
+    <div class="col-md-12 form-group">
+        <button type="submit" value="submit" class="btn btn-primary" disabled>로그인</button>
+    </div>
+{% endblock %}
