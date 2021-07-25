@@ -1,1 +1,36 @@
 <!-- 게시글 추가 -->
+{% extends '_layout.html' %}
+{% block content %}
+<div class="content">
+    <form action="/addpost" method="post">
+        {% csrf_token %}
+        <div style="align-items: center;">
+            <!-- 사진 -->
+            <img src="https://dummyimage.com/400x400/000000/fff" alt="">
+            <input type="file" id="img" name="img" accept="image/*">
+            {% comment %} 업로드하면 자동으로바뀜 {% endcomment %}
+        </div>
+        <div>
+            <div>
+                <div>
+                    <!-- 설명 -->
+                    <p class="description">
+                        <input type="text" name="desc" id="desc">
+                    </p>
+                </div>
+            </div>
+            <div>
+                <!-- 설정 -->
+                <div class="setting">
+                    <input type="radio" id="pub" name="show" value="public" checked>
+                    <label for="pub">공개</label>
+                    <input type="radio" id="priv" name="show" value="private" checked>
+                    <label for="priv">비공개</label>
+                    
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-default">게시</button>
+    </form>
+</div>
+{% endblock %}
