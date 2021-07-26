@@ -20,6 +20,7 @@ class Home(views.View):
         data = {'login': "로그인", 'nick': "먼저 로그인 해주세요"}
         return render(request, 'index.html', data)
 
+
 class AddPost(views.View):
     @staticmethod
     def post(request):
@@ -28,6 +29,7 @@ class AddPost(views.View):
     @staticmethod
     def get(request):
         return render(request, 'add_post.html')
+
 
 class Login(views.View):
     @staticmethod

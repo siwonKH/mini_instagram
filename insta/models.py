@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.deletion import CASCADE
 from django.utils import timezone
 
+
 class User(models.Model):
     id = models.AutoField(primary_key=True)
     nickname = models.TextField(max_length=15, null=False)
@@ -13,11 +14,13 @@ class User(models.Model):
     profile_pic = models.ImageField(upload_to='profile_pic', null=False, default='/profile_pic/default.png')
     introduce = models.TextField(max_length=150, null=False, default='')
 
+
 class Post(models.Model):
     id = models.AutoField(primary_key=True, null=False)
     image = models.ImageField(upload_to='post_pic', null=True, default=None)
     description = models.TextField(max_length=100, null=False, default='')
     created_at = models.DateTimeField(default=timezone.now)
+
 
 class PostComment(models.Model):
     id = models.AutoField(primary_key=True)
@@ -25,6 +28,7 @@ class PostComment(models.Model):
     user_id = models.ForeignKey(to=User, related_name='user_comment', on_delete=models.CASCADE, db_column='user_id')
     comment = models.TextField(max_length=100, null=False, default='')
     created_at = models.DateTimeField(default=timezone.now)
+
 
 class PostLike(models.Model):
     id = models.AutoField(primary_key=True)
