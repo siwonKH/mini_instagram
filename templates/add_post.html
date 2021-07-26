@@ -2,37 +2,121 @@
 {% extends '_layout.html' %}
 {% block content %}
 <div class="content">
+    <h6 style="text-align: center;"><strong>작성</strong></h6>
+</div>
+<div class="content add-post content-ver1">
     <form action="/addpost" method="post">
-        {% csrf_token %}
-        <div class="form-group">
+        <div class="form-group left left-margin">
             <!-- 사진 -->
-            <img src="https://dummyimage.com/400x400/000000/fff" alt="">
-            <br>
-            <input type="file" class="form-control-file" id="img" name="img" accept="image/*">
-            {% comment %} 업로드하면 자동으로바뀜 -> 자바스크립트로 처리 {% endcomment %}
+            <img id="preview" src="https://dummyimage.com/400x400/000000/fff" alt="">
+            <input type="file" class="form-control-file" style="margin-top: 15px; margin-bottom: 15px;" id="img"
+                name="img" accept="image/*">
         </div>
-        <br>
-        <div>
+        <div class="left">
             <div>
-                <div>
-                    <!-- 설명 -->
-                    <p class="description">
-                        <input type="text" class="form-control" id="desc" placeholder="설명">
-                    </p>
-                </div>
+                <!-- 설명 -->
+                <p>
+                    <textarea class="form-control" id="desc" placeholder="설명"></textarea>
+                </p>
             </div>
             <div>
                 <!-- 설정 -->
-                <div class="setting">
+                <div class="setting" style="margin-bottom: 15px;">
                     <input type="radio" id="pub" name="show" value="public" checked>
                     <label for="pub">공개</label>
                     <input type="radio" id="priv" name="show" value="private" checked>
                     <label for="priv">비공개</label>
                 </div>
             </div>
-            <br>
+            <button type="submit" class="btn share butt">게시</button>
         </div>
-        <button type="submit" class="btn btn-outline-dark mb-1">게시</button>
     </form>
 </div>
+<script>
+    $("#img").change(function () {
+        let self = this;
+        let url = $(this).val();
+        let ext = url.substring(url.lastIndexOf(".") + 1).toLowerCase();
+        if (self.files && self.files[0] && (ext == "gif" || ext == "png" || ext == "jpeg" || ext == "jpg")) {
+            resize(self.files[0], ext);
+        } else {
+            $("#preview").attr("src", "https://dummyimage.com/400x400/000000/fff");
+        }
+    });
+    //https://stackoverflow.com/questions/24837646/onchange-file-input-change-img-src-and-change-image-color
+
+    function resize(img,format) {
+        console.log("got format: " + format);
+        var reader = new FileReader();
+        reader.onload = function (readerEvent) {
+            var image = new Image();
+            image.onload = function (imageEvent) {
+                var canvas = document.createElement('canvas'),
+                    max_size = 400,
+                    width = image.width,
+                    height = image.height;
+                if (width > height) {
+                    if (width > max_size) {
+                        height *= max_size / width;
+                        width = max_size;
+                    }
+                } else {
+                    if (height > max_size) {
+                        width *= max_size / height;
+                        height = max_size;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+                var dataUrl = canvas.toDataURL('image/jpeg');
+                switch(format){
+                    case "png":
+                        dataUrl = canvas.toDataURL("image/png");
+                        break;
+                }
+                var resizedImage = dataURLToBlob(dataUrl);
+                $.event.trigger({
+                    type: "imageResized",
+                    blob: resizedImage,
+                    url: dataUrl
+                });
+            }
+            image.src = readerEvent.target.result;
+        }
+
+        reader.readAsDataURL(img);
+    }
+    $(document).on("imageResized", function (event) {
+        $("#preview").attr("src", event.url);
+    });
+    var dataURLToBlob = function (dataURL) {
+        var BASE64_MARKER = ';base64,';
+        if (dataURL.indexOf(BASE64_MARKER) == -1) {
+            var parts = dataURL.split(',');
+            var contentType = parts[0].split(':')[1];
+            var raw = parts[1];
+
+            return new Blob([raw], {
+                type: contentType
+            });
+        }
+
+        var parts = dataURL.split(BASE64_MARKER);
+        var contentType = parts[0].split(':')[1];
+        var raw = window.atob(parts[1]);
+        var rawLength = raw.length;
+
+        var uInt8Array = new Uint8Array(rawLength);
+
+        for (var i = 0; i < rawLength; ++i) {
+            uInt8Array[i] = raw.charCodeAt(i);
+        }
+
+        return new Blob([uInt8Array], {
+            type: contentType
+        });
+    }
+    //https://stackoverflow.com/questions/23945494/use-html5-to-resize-an-image-before-upload
+</script>
 {% endblock %}
