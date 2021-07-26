@@ -4,7 +4,7 @@
 {% block content %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 
-<div class="d-flex justify-content-center">
+<div class="d-flex justify-content-center my-5">
     <div class="col-3 text-center m-10 border border-secondary rounded">
         <div class="col text-center m-5"></div>
         <div class="col text-center">
@@ -18,29 +18,32 @@
             {% csrf_token %}
             <div class="col text-center">
                 <div class="col-md-12 form-group">
-                    <label>
+                    <label class="col-8">
                         <input aria-label="닉네임" id="id" class="form-control" aria-required="true" maxlength="50" name="username" type="text" value="" placeholder="닉네임" onfocus="this.placeholder = ''" onblur="this.placeholder = '닉네임'">
                     </label>
                 </div>
                 <div class="col-md-12 form-group">
-                    <label>
+                    <label class="col-8">
                         <input aria-label="비밀번호" id="password" class="form-control" aria-required="true" name="password" type="password" value="" placeholder="비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '비밀번호'">
                     </label>
                 </div>
                 <div class="col text-center m-2"></div>
                 <div class="col-md-12 form-group">
-                    <button id="submit" type="submit" value="submit" class="btn btn-primary" disabled>로그인</button>
+                    <button class="btn btn-primary col-md-8" id="submit" type="submit" disabled>로그인</button>
                 </div>
-                <div class="col text-center m-2">
-                    <a href="#">비밀번호 찾기</a>
-                </div>
-                <div class="col text-center m-2">
-                    <a href="#">회원가입하기</a>
+                <div class="my-4" id="find">
+                    <div class="col text-center m-2">
+                        <a href="#">비밀번호 찾기</a>
+                    </div>
+                    <div class="col text-center m-2">
+                        <a href="#">회원가입하기</a>
+                    </div>
                 </div>
             </div>
         </form>
     </div>
 </div>
+
 <script>
     $(document).ready(function () {
         $('#id').on('input change', function () {
