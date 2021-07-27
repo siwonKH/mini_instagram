@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import AddPost, Home, Login, LogOut
+from .views import AddPost, Home, Login, LogOut, check
 
 app_name = 'insta'
 urlpatterns = [
@@ -7,4 +7,5 @@ urlpatterns = [
     path('addpost', AddPost.as_view()),
     path('login', Login.as_view()),
     path('logout', LogOut.as_view()),
+    path('check', check)
 ]
