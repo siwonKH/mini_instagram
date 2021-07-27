@@ -199,14 +199,13 @@ input:focus{
   }
 }
 
-
 @media (min-width: 1400px){
   .content-ver1{
     height: 500px !important;
   }
 
   .content textarea{
-    height: 360px;
+    height: 400px;
     width: 225px;
   }
 
