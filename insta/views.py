@@ -3,6 +3,15 @@ from django.shortcuts import render, redirect
 from django import views
 from django.contrib.auth import logout
 from .models import User, Post
+from django.views.generic.list import ListView
+
+
+class PostsView(ListView):
+    model = Post
+    paginate_by = 4
+    context_object_name = 'posts'
+    template_name = 'index.html'
+    ordering = ['created_at']
 
 
 class Home(views.View):
@@ -34,7 +43,6 @@ class AddPost(views.View):
             return redirect('/login')
 
         # 폼에서 받은 정보 가져오기
-        nick = user.nickname
         description = request.POST['desc']
         try:
             image = request.FILES['img']
@@ -58,11 +66,11 @@ class AddPost(views.View):
 class Login(views.View):
     @staticmethod
     def post(request):
-        user_id = request.POST['user_id']
+        email = request.POST['email']
         password = request.POST['password']
 
-        if User.objects.filter(id=user_id).exists():
-            user = User.objects.get(id=user_id)  # 데이터베이스에서 user_id 에 해당하는 데이터 가져오기
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email=email)  # 데이터베이스에서 user_id 에 해당하는 데이터 가져오기
             salted_password = str(user.salt) + str(password)  # 불러온 해당유저 데이터에서, 솔트값을 사용자 입력 값과 합침
             hashed_password = hashlib.sha256(salted_password.encode()).hexdigest()  # 솔트값과 합쳐진 사용자 입력값을 해시
 
@@ -74,7 +82,7 @@ class Login(views.View):
                 return render(request, 'sign_in.html', data)  # 에러메시지를 포함하여 sign_in.html 을 사용자에게 보여줌
 
         else:
-            data = {'error': "아이디 또는 비밀번호가 다릅니다", 'user': user_id}
+            data = {'error': "아이디 또는 비밀번호가 다릅니다", 'user': email}
             return render(request, 'sign_in.html', data)
 
     @staticmethod
