@@ -107,4 +107,20 @@
             $('.spinner-border').show();
         });
     </script>
+    <script>
+        $(document).ready(function(){
+            $.ajax({
+                type: 'GET',
+                url:'/check',
+                data : {
+                    'dummy': "a",
+                },
+                success:function(res){
+                    if(res.s === "false") {
+                        location.href = "/login"
+                    }
+                }
+            })
+        })
+	</script>
 {% endblock %}
