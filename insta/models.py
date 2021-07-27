@@ -1,11 +1,10 @@
 from enum import unique
 from django.db import models
-from django.db.models.deletion import CASCADE
 from django.utils import timezone
 
 
 class User(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = models.EmailField(primary_key=True)
     nickname = models.TextField(max_length=15, null=False)
     name = models.TextField(max_length=100, null=False)
     password = models.TextField(max_length=50, null=False)
@@ -17,6 +16,7 @@ class User(models.Model):
 
 class Post(models.Model):
     id = models.AutoField(primary_key=True, null=False)
+    user_id = models.IntegerField(null=False)
     image = models.ImageField(upload_to='post_pic', null=True, default=None)
     description = models.TextField(max_length=100, null=False, default='')
     created_at = models.DateTimeField(default=timezone.now)
