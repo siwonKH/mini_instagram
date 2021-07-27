@@ -43,10 +43,21 @@
                     <label for="priv">비공개</label>
                 </div>
             </div>
-            <button type="submit" class="btn share butt">게시</button>
+            <button type="submit" id="submit" class="btn share butt" disabled>게시</button>
         </div>
     </form>
 </div>
+<script>
+    $(document).ready(function () {
+        $('#img').on('input change', function () {
+            if ($(this).val()) {
+                $('#submit').prop('disabled', false);
+            } else {
+                $('#submit').prop('disabled', true);
+            }
+        });
+    });
+</script>
 <script>
     $("#img").change(function () {
         let self = this;
