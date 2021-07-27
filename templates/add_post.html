@@ -29,6 +29,7 @@
 </div>
 <div class="content add-post content-ver1">
     <form method="post">
+        {% csrf_token %}
         <div class="form-group left left-margin">
             <!-- 사진 -->
             <img id="preview" src="https://dummyimage.com/400x400/000000/fff" alt="">
