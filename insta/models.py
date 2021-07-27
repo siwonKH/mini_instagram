@@ -4,8 +4,8 @@ from django.utils import timezone
 
 
 class User(models.Model):
-    id = models.AutoField(primary_key=True)
-    email = models.EmailField(null=False)
+    id = models.AutoField(primary_key=True, null=False)
+    email = models.EmailField(max_length=100, null=False)
     nickname = models.TextField(max_length=15, null=False)
     name = models.TextField(max_length=100, null=False)
     password = models.TextField(max_length=50, null=False)
@@ -19,7 +19,7 @@ class User(models.Model):
 class Post(models.Model):
     id = models.AutoField(primary_key=True, null=False)
     author = models.ForeignKey(to=User, related_name='post_user', on_delete=models.CASCADE, db_column='post_user')
-    image = models.ImageField(upload_to='post_pic', null=True, default=None)
+    image = models.ImageField(upload_to='post_pic', null=False, default=None)
     description = models.TextField(max_length=100, null=False, default='')
     created_at = models.DateTimeField(default=timezone.now)
 
