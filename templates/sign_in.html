@@ -2,46 +2,43 @@
 {% extends '_layout.html' %}
 
 {% block content %}
-<div class="content content1">
-    <div class="col text-center m-20">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+<div class="d-flex justify-content-center">
+    <div class="col-3 text-center m-10 border border-secondary rounded">
         <div class="col text-center m-5"></div>
         <div class="col text-center">
-            <a class="navbar-brand" href="#">
-                <img src="./image/mini_instargram_logo.png" alt="" width="auto" class="d-inline-block">
+            <a class="navbar-brand" href="">
+                <img src="./static/image/mini_instargram_logo.png" alt="" width="250" class="d-inline-block">
             </a>
-            <h4 style="margin-top: 1.5rem;">로그인</h4>
         </div>
         <div class="col text-center m-5"></div>
 
-        <form class="row login_form" method="post">
-            <div class="col text-center">
-                <div class="col-md-12 form-group">
-                    <label>
-                        <input style="margin-bottom: .4rem;" aria-label="닉네임" class="form-control" aria-required="true"
-                            maxlength="50" name="username" type="text" value="" placeholder="닉네임"
-                            onfocus="this.placeholder = ''" onblur="this.placeholder = '닉네임'">
+        <form class="row" method="post">
+            {% csrf_token %}
+            <div class="col text-center d-grid gap-2">
+                <div class="col-md-12">
+                    <label class="col-8">
+                        <input aria-label="이메일" id="id" class="form-control" aria-required="true" maxlength="50" name="username" type="text" value="" placeholder="이메일" onfocus="this.placeholder = ''" onblur="this.placeholder = '이메일'">
                     </label>
                 </div>
-                <div class="col-md-12 form-group">
-                    <label>
-                        <input aria-label="비밀번호" class="form-control" aria-required="true" name="password"
-                            type="password" value="" placeholder="비밀번호" onfocus="this.placeholder = ''"
-                            onblur="this.placeholder = '비밀번호'">
+                <div class="col-md-12">
+                    <label class="col-8">
+                        <input aria-label="비밀번호" id="password" class="form-control" aria-required="true" name="password" type="password" value="" placeholder="비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '비밀번호'">
                     </label>
                 </div>
                 <div class="col text-center m-2"></div>
-                <div class="col-md-12 form-group ">
-                    <button style="margin-top: .5rem; width: auto; min-width: 12rem; margin-bottom: 2rem;" type="submit"
-                        value="submit" class="btn btn-primary" disabled>로그인</button>
+                <div class="col-md-12">
+                    <button id="submit" type="submit" value="submit" class="btn btn-primary col-8" disabled>로그인</button>
                 </div>
-                <div class="col text-center m-2">
-                    <a href="#">비밀번호 찾기</a>
+                <div class="my-3">
+                    <div class="col text-center m-2">
+                        <a href="#">비밀번호 찾기</a>
+                    </div>
+                    <div class="col text-center m-2">
+                        <a href="#">회원가입하기</a>
+                    </div>
                 </div>
-                <div class="col text-center m-2"></div>
-                <div>
-                    <a href="#">회원가입하기</a>
-                </div>
-                <div class="col  m-5"></div>
             </div>
         </form>
     </div>
