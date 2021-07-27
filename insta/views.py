@@ -8,10 +8,10 @@ from django.views.generic.list import ListView
 
 class PostsView(ListView):
     model = Post
-    paginate_by = 4
+    paginate_by = 1
     context_object_name = 'posts'
     template_name = 'index.html'
-    ordering = ['created_at']
+    ordering = ['id']
 
 
 class Home(views.View):
@@ -27,7 +27,7 @@ class Home(views.View):
             return render(request, 'index.html', data)
 
         data = {'login': "로그인", 'nick': "먼저 로그인 해주세요"}
-        return render(request, 'index.html', data)
+        return render(request, 'sign_in.html', data)
 
 
 # noinspection PyBroadException
@@ -50,7 +50,7 @@ class AddPost(views.View):
             return redirect('/addpost')
 
         post = Post()
-        post.author = user.id
+        post.author = user
         if description:
             post.description = description
         post.image = image
@@ -76,7 +76,7 @@ class Login(views.View):
 
             if str(user.password) == str(hashed_password):  # 비번 화긴
                 request.session['user'] = user.id  # 세션에 유저 아이디 저장
-                return redirect('/home')  # 홈(index.html)으로 리다이렉트
+                return redirect('/')  # 홈(index.html)으로 리다이렉트
             else:
                 data = {'error': "아이디 또는 비밀번호가 다릅니다"}  # 에러메시지 생성
                 return render(request, 'sign_in.html', data)  # 에러메시지를 포함하여 sign_in.html 을 사용자에게 보여줌
@@ -91,7 +91,7 @@ class Login(views.View):
 
         if user_pk:  # 세션이 비지 않았다면?
             # 여기 왜 왔어~ 로그인 했으면 홈으로 돌아가~
-            return redirect('/home')
+            return redirect('/')
 
         # 로그인 하세요~
         return render(request, 'sign_in.html')  # 사용자에게 로그인 페이지 보여줌
@@ -105,4 +105,4 @@ class LogOut(views.View):
     @staticmethod
     def get(request):
         logout(request)
-        return redirect('/home')
+        return redirect('/')
