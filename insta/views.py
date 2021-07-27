@@ -1,9 +1,13 @@
 import hashlib
+import json
+
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django import views
 from django.contrib.auth import logout
 from .models import User, Post
 from django.views.generic.list import ListView
+from django.contrib.auth.decorators import login_required
 
 
 class PostsView(ListView):
@@ -14,8 +18,18 @@ class PostsView(ListView):
     ordering = ['id']
 
 
+def check(request):
+    user_pk = request.session.get('user')
+    if not user_pk:
+        context = {'s': 'false'}
+        return HttpResponse(json.dumps(context), content_type="application/json")
+    context = {'s': 'true'}
+    return HttpResponse(json.dumps(context), content_type="application/json")
+
+
 class Home(views.View):
-    def post(self, request):
+    @staticmethod
+    def post(request):
         pass
 
     @staticmethod
@@ -60,7 +74,10 @@ class AddPost(views.View):
 
     @staticmethod
     def get(request):
-        return render(request, 'add_post.html')
+        user_pk = request.session.get('user')
+        if user_pk:
+            return render(request, 'add_post.html')
+        return redirect('/login')
 
 
 class Login(views.View):
@@ -88,7 +105,6 @@ class Login(views.View):
     @staticmethod
     def get(request):
         user_pk = request.session.get('user')  # 사용자 세션 확인
-
         if user_pk:  # 세션이 비지 않았다면?
             # 여기 왜 왔어~ 로그인 했으면 홈으로 돌아가~
             return redirect('/')
