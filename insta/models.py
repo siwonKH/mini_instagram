@@ -12,6 +12,7 @@ class User(models.Model):
     is_admin = models.SmallIntegerField(null=False, default=0)
     profile_pic = models.ImageField(upload_to='profile_pic', null=False, default='/profile_pic/default.png')
     introduce = models.TextField(max_length=150, null=False, default='')
+    is_verified = models.BooleanField(default=False)
 
 
 class Post(models.Model):
