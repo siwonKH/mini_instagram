@@ -4,7 +4,7 @@
 {% block navbar %}
 <ul class="navbar-nav ms-auto">
     <li class="nav-item">
-        <a class="nav-link" aria-current="page" href="/home">홈</a>
+        <a class="nav-link" aria-current="page" href="/">홈</a>
     </li>
     <li class="nav-item">
         <a class="nav-link active" href="/addpost">게시글 추가</a>
@@ -22,35 +22,21 @@
       </li>
 </ul>
 {% endblock %}
-
 {% block content %}
 <div class="content">
     <h6 style="text-align: center;"><strong>작성</strong></h6>
 </div>
 <div class="content add-post content-ver1">
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="form-group left left-margin">
-            <!-- 사진 -->
             <img id="preview" src="https://dummyimage.com/400x400/000000/fff" alt="">
             <input type="file" class="form-control-file" style="margin-top: 15px; margin-bottom: 15px;" id="img"
                 name="img" accept="image/*">
         </div>
         <div class="left">
             <div>
-                <!-- 설명 -->
-                <p>
-                    <textarea class="form-control" id="desc" name="desc" placeholder="설명"></textarea>
-                </p>
-            </div>
-            <div>
-                <!-- 설정 -->
-                <div class="setting" style="margin-bottom: 15px;">
-                    <input type="radio" id="pub" name="show" value="public" checked>
-                    <label for="pub">공개</label>
-                    <input type="radio" id="priv" name="show" value="private" checked>
-                    <label for="priv">비공개</label>
-                </div>
+                <p><textarea class="form-control" id="desc" name="desc" placeholder="설명"></textarea></p>
             </div>
             <button type="submit" id="submit" class="btn share butt" disabled>게시</button>
         </div>
