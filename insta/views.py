@@ -21,9 +21,33 @@ class Home(views.View):
         return render(request, 'index.html', data)
 
 
+# noinspection PyBroadException
 class AddPost(views.View):
     @staticmethod
     def post(request):
+        user_pk = request.session.get('user')
+        # 로그인 했니?
+        if user_pk:
+            user = User.objects.get(id=user_pk)
+        # 안했으면 로그인 해
+        else:
+            return redirect('/login')
+
+        # 폼에서 받은 정보 가져오기
+        nick = user.nickname
+        description = request.POST['desc']
+        try:
+            image = request.FILES['img']
+        except:
+            return redirect('/addpost')
+
+        post = Post()
+        post.author = user.id
+        if description:
+            post.description = description
+        post.image = image
+        post.save()
+
         return redirect('/')
 
     @staticmethod
