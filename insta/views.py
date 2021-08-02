@@ -30,7 +30,7 @@ def check(request):
 class Home(views.View):
     @staticmethod
     def post(request):
-        pass
+        return redirect('/')
 
     @staticmethod
     def get(request):
@@ -75,26 +75,80 @@ class AddPost(views.View):
         return redirect('/login')
 
 
+class EditPost(views.View):
+    @staticmethod
+    def post(request):
+        try:
+            post_id = request.POST['id']
+            post = Post.objects.get(id=post_id)  # 게시글 테이블에서 정보 가져오기
+        except:
+            return redirect('/')
+
+        user_pk = request.session.get('user')
+        if not user_pk:
+            return redirect('/login')
+
+        if str(user_pk) != str(post.author.id):  # 수정하려는 사람과 작성자가 다르다면
+            return redirect('/')
+
+        description = request.POST['desc']
+        try:
+            image = request.FILES['img']
+            post.image.delete()
+            post.save()
+            post.image = image
+        except:
+            pass
+
+        post.description = description
+        post.save()
+        return redirect('/')
+
+    @staticmethod
+    def get(request):
+        user_pk = request.session.get('user')
+        if not user_pk:
+            return redirect('/login')
+
+        try:
+            post_id = request.GET['id']
+            post = Post.objects.get(id=post_id)  # 게시글 테이블에서 정보 가져오기
+        except:
+            return redirect('/')
+
+        if str(user_pk) != str(post.author.id):  # 수정하려는 사람과 작성자가 다르다면
+            return redirect('/')
+
+        context = {
+            'image': post.image,
+            'desc': post.description
+        }
+        return render(request, 'edit_post.html', context)
+
+
 class Login(views.View):
     @staticmethod
     def post(request):
-        email = request.POST['email']
-        password = request.POST['password']
-
+        try:
+            email = request.POST['email']
+            password = request.POST['password']
+        except:
+            return redirect('/login')
         if User.objects.filter(email=email).exists():
             user = User.objects.get(email=email)  # 데이터베이스에서 user_id 에 해당하는 데이터 가져오기
             salted_password = str(user.salt) + str(password)  # 불러온 해당유저 데이터에서, 솔트값을 사용자 입력 값과 합침
             hashed_password = hashlib.sha256(salted_password.encode()).hexdigest()  # 솔트값과 합쳐진 사용자 입력값을 해시
 
-            if str(user.password) == str(hashed_password):  # 비번 화긴
-                request.session['user'] = user.id  # 세션에 유저 아이디 저장
-                return redirect('/')  # 홈(index.html)으로 리다이렉트
+            if str(user.password) == str(hashed_password):
+                request.session['user'] = user.id  # 로그인 성공!
+                context = {'msg': "success"}
+                return HttpResponse(json.dumps(context), content_type="application/json")
+
             else:
                 context = {'msg': "pw_fail"}  # 에러메시지 생성
                 return HttpResponse(json.dumps(context), content_type="application/json")
-
         else:
-            context = {'msg': "id_fail"}
+            context = {'msg': "id_fail"}  # 에러메시지 생성
             return HttpResponse(json.dumps(context), content_type="application/json")
 
     @staticmethod
