@@ -86,9 +86,6 @@
         $.ajax({
             type: 'GET',
             url:'/check',
-            data : {
-                'dummy': "a",
-            },
             success:function(res){
                 if(res.s === "false") {
                     location.href = "/login"
