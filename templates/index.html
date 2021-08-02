@@ -1,25 +1,25 @@
 {% extends '_layout.html' %}
 
 {% block navbar %}
-<ul class="navbar-nav ms-auto">
-    <li class="nav-item">
-        <a class="nav-link active" aria-current="page" href="/">홈</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="/addpost">게시글 추가</a>
-    </li>
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#"  id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="./static/image/profil.png" width="30rem" class="d-inline-block rounded-circle" alt="">
-        </a>
-        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="#">프로필</a></li>
-            <li><a class="dropdown-item" href="#">설정</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
-        </ul>
-      </li>
-</ul>
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="/">홈</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/addpost">게시글 추가</a>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#"  id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="./static/image/profil.png" width="30rem" class="d-inline-block rounded-circle" alt="">
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="#">프로필</a></li>
+                <li><a class="dropdown-item" href="#">설정</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
+            </ul>
+          </li>
+    </ul>
 {% endblock %}
 
 {% block content %}
@@ -81,11 +81,25 @@
         <div class="spinner-border" role="status"></div>
     </div>
 
-    <script src="/static/jquery/jquery-3.2.1.min.js"></script>
+    <script type="module" src="/static/jquery/jquery-3.2.1.min.js"></script>
+    <script type="module">
+        $.ajax({
+            type: 'GET',
+            url:'/check',
+            data : {
+                'dummy': "a",
+            },
+            success:function(res){
+                if(res.s === "false") {
+                    location.href = "/login"
+                }
+            }
+        })
+    </script>
     <script src="/static/el-pagination/js/jquery.waypoints.min.js"></script>
     <script src="/static/el-pagination/js/infinite.min.js"></script>
     <script>
-        var infinite = new Waypoint.Infinite({
+        let infinite = new Waypoint.Infinite({
             element: $('.infinite-container')[0],
             handler: function(direction) {
         },
@@ -107,20 +121,4 @@
             $('.spinner-border').show();
         });
     </script>
-    <script>
-        $(document).ready(function(){
-            $.ajax({
-                type: 'GET',
-                url:'/check',
-                data : {
-                    'dummy': "a",
-                },
-                success:function(res){
-                    if(res.s === "false") {
-                        location.href = "/login"
-                    }
-                }
-            })
-        })
-	</script>
 {% endblock %}
