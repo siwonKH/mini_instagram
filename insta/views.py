@@ -1,7 +1,5 @@
 import hashlib
-import json
-
-from django.http import HttpResponse
+from django.http.response import HttpResponseNotAllowed
 from django.shortcuts import render, redirect
 from django import views
 from django.contrib.auth import logout
@@ -18,19 +16,10 @@ class PostsView(ListView):
     ordering = ['id']
 
 
-def check(request):
-    user_pk = request.session.get('user')
-    if not user_pk:
-        context = {'s': 'false'}
-        return HttpResponse(json.dumps(context), content_type="application/json")
-    context = {'s': 'true'}
-    return HttpResponse(json.dumps(context), content_type="application/json")
-
-
 class Home(views.View):
     @staticmethod
     def post(request):
-        pass
+        return HttpResponseNotAllowed('get')
 
     @staticmethod
     def get(request):
@@ -39,9 +28,7 @@ class Home(views.View):
             user = User.objects.get(id=user_pk)  # (세션에 있는 아이디 값)에 해당하는 데이터를 데이터 베이스에서 불러옴
             data = {'login': "로그아웃", 'nick': str(user.nickname)}
             return render(request, 'index.html', data)
-
-        data = {'login': "로그인", 'nick': "먼저 로그인 해주세요"}
-        return render(request, 'sign_in.html', data)
+        return redirect('/login')
 
 
 # noinspection PyBroadException
@@ -85,12 +72,11 @@ class Login(views.View):
     def post(request):
         email = request.POST['email']
         password = request.POST['password']
-
         if User.objects.filter(email=email).exists():
             user = User.objects.get(email=email)  # 데이터베이스에서 user_id 에 해당하는 데이터 가져오기
             salted_password = str(user.salt) + str(password)  # 불러온 해당유저 데이터에서, 솔트값을 사용자 입력 값과 합침
             hashed_password = hashlib.sha256(salted_password.encode()).hexdigest()  # 솔트값과 합쳐진 사용자 입력값을 해시
-
+            request.session['user'] = user.id
             if str(user.password) == str(hashed_password):  # 비번 화긴
                 request.session['user'] = user.id  # 세션에 유저 아이디 저장
                 return redirect('/')  # 홈(index.html)으로 리다이렉트
@@ -122,3 +108,12 @@ class LogOut(views.View):
     def get(request):
         logout(request)
         return redirect('/')
+
+
+class MyPage(views.View):
+    @staticmethod
+    def get(request):
+        user_pk = request.session.get('user')
+        if user_pk:
+            return render(request, 'mypage.html')
+        return redirect('/login')

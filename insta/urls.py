@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import AddPost, Home, Login, LogOut, check
+from .views import AddPost, Home, Login, LogOut
+from .utils import check
 
 app_name = 'insta'
 urlpatterns = [
