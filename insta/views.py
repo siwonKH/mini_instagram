@@ -20,10 +20,10 @@ class PostsView(ListView):
 
 def check(request):
     user_pk = request.session.get('user')
-    if not user_pk:
-        context = {'s': 'false'}
+    if user_pk:
+        context = {'s': 'true'}
         return HttpResponse(json.dumps(context), content_type="application/json")
-    context = {'s': 'true'}
+    context = {'s': 'false'}
     return HttpResponse(json.dumps(context), content_type="application/json")
 
 
@@ -36,12 +36,9 @@ class Home(views.View):
     def get(request):
         user_pk = request.session.get('user')  # 요청을 보낸 사용자의 세션 확인
         if user_pk:  # 세션이 비어있지 않다면
-            user = User.objects.get(id=user_pk)  # (세션에 있는 아이디 값)에 해당하는 데이터를 데이터 베이스에서 불러옴
-            data = {'login': "로그아웃", 'nick': str(user.nickname)}
-            return render(request, 'index.html', data)
+            return redirect('/')
 
-        data = {'login': "로그인", 'nick': "먼저 로그인 해주세요"}
-        return render(request, 'sign_in.html', data)
+        return redirect('/login')
 
 
 # noinspection PyBroadException
@@ -49,10 +46,8 @@ class AddPost(views.View):
     @staticmethod
     def post(request):
         user_pk = request.session.get('user')
-        # 로그인 했니?
         if user_pk:
             user = User.objects.get(id=user_pk)
-        # 안했으면 로그인 해
         else:
             return redirect('/login')
 
@@ -95,12 +90,12 @@ class Login(views.View):
                 request.session['user'] = user.id  # 세션에 유저 아이디 저장
                 return redirect('/')  # 홈(index.html)으로 리다이렉트
             else:
-                data = {'error': "아이디 또는 비밀번호가 다릅니다"}  # 에러메시지 생성
-                return render(request, 'sign_in.html', data)  # 에러메시지를 포함하여 sign_in.html 을 사용자에게 보여줌
+                context = {'msg': "pw_fail"}  # 에러메시지 생성
+                return HttpResponse(json.dumps(context), content_type="application/json")
 
         else:
-            data = {'error': "아이디 또는 비밀번호가 다릅니다", 'user': email}
-            return render(request, 'sign_in.html', data)
+            context = {'msg': "id_fail"}
+            return HttpResponse(json.dumps(context), content_type="application/json")
 
     @staticmethod
     def get(request):
