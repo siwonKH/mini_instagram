@@ -2,12 +2,12 @@ import hashlib
 import json
 
 from django.http import HttpResponse
+from django.http.response import HttpResponseNotAllowed
 from django.shortcuts import render, redirect
 from django import views
 from django.contrib.auth import logout
 from .models import User, Post
 from django.views.generic.list import ListView
-from django.contrib.auth.decorators import login_required
 
 
 class PostsView(ListView):
@@ -18,19 +18,10 @@ class PostsView(ListView):
     ordering = ['id']
 
 
-def check(request):
-    user_pk = request.session.get('user')
-    if user_pk:
-        context = {'s': 'true'}
-        return HttpResponse(json.dumps(context), content_type="application/json")
-    context = {'s': 'false'}
-    return HttpResponse(json.dumps(context), content_type="application/json")
-
-
 class Home(views.View):
     @staticmethod
     def post(request):
-        return redirect('/')
+        return HttpResponseNotAllowed('get')
 
     @staticmethod
     def get(request):
