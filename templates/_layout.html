@@ -29,7 +29,24 @@
     <!-- header -->
     <header>
         <div class="container">
+<<<<<<< HEAD
         {% include '_navbar.html' %}
+=======
+            <nav class="pad navbar navbar-expand-lg navbar-light pl-2 pr-2">
+                <a class="navbar-brand" href="/">
+                    <img src="./static/image/mini_instargram_logo.png" alt="" width="160" class="d-inline-block">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                    {% block navbar %}
+                    {% endblock %}
+                </div>
+            </nav>
+>>>>>>> 8d4f8cb9cafb15646c38754f41adf9c4c022bf9a
         </div>
     </header>
 

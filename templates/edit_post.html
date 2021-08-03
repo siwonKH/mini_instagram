@@ -1,0 +1,51 @@
+{% extends '_layout.html' %}
+
+{% block navbar %}
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+            <a class="nav-link" href="/">홈</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/addpost">게시글 추가</a>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="./static/image/profil.png" width="30rem" class="d-inline-block rounded-circle" alt="">
+            </a>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">프로필</a></li>
+                <li><a class="dropdown-item" href="#">설정</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
+            </ul>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+    <div class="content post-content">
+        <h6 style="text-align: center;"><strong>수정</strong></h6>
+    </div>
+    <div class="content post-content add-post content-ver1">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group left left-margin">
+                <div class="border rounded-3" style="width: 500px; height: 500px; overflow: hidden">
+                    <img src="{{ image.url }}" alt="">
+                </div>
+                <input type="file" class="form-control-file" style="margin-top: 15px; margin-bottom: 15px;" id="img" name="img" accept="image/*">
+            </div>
+            <div class="left">
+                <div>
+                    <p>
+                        <textarea class="form-control" id="desc" name="desc" placeholder="설명">{{ desc }}</textarea>
+                    </p>
+                </div>
+                <div class="col-12 btn-group">
+                    <button type="button" class="btn btn-secondary mx-1" >취소</button>
+                    <button type="submit" class="btn btn-primary mx-1">완료</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

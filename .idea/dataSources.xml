@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="mini_insta" uuid="ea6330a3-2cd7-4a39-91b5-11fa0e315973">
+    <data-source source="LOCAL" name="insta@218.158.89.141" uuid="a358015e-9950-4682-b0f0-7a5620f95af8">
       <driver-ref>mariadb</driver-ref>
       <synchronize>true</synchronize>
-      <remarks>insta</remarks>
       <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mariadb://167.179.115.60:3306</jdbc-url>
+      <jdbc-url>jdbc:mariadb://218.158.89.141:3306/insta</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

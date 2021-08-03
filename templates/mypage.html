@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!-- 로그인 -->
 {% extends '_layout.html' %}
 
@@ -32,4 +33,63 @@
         <span class="item"><img class="cont-img" src="image/식극의 소마.png"></span>
     </div>
 </div>
+=======
+<!-- 마이페이지 -->
+{% extends '_layout.html' %}
+
+{% block navbar %}
+<ul class="navbar-nav ms-auto">
+    <li class="nav-item">
+        <a class="nav-link" aria-current="page" href="/home">홈</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/addpost">게시글 추가</a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#"  id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="./static/image/profil.png" width="30rem" class="d-inline-block rounded-circle" alt="">
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#">프로필</a></li>
+            <li><a class="dropdown-item" href="#">설정</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
+        </ul>
+      </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+        <div class="mypage-content">
+            <div class="mypage-head">
+                <div class="profil">
+                    <img src="./image/profil.png" class="profil-photo">
+                </div>
+                <div class="kit">
+                    <div>
+                        <h2 class="nick">GBsw1234</h2>
+                        <button class="profil-button" href="#">프로필 편집</button>
+                    </div>
+                    <div class="follo">
+                        팔로워 <strong>XX</strong>&nbsp;
+                        팔로우<strong>XX</strong>
+                    </div>
+                    <div>
+                        <p>
+                            printf("Hello, World!");
+                        </p>
+                    </div>
+                </div>
+                </div>
+                <div class="mypage-main">
+                    <span class="item"><img class="cont-img" src="image/식극의 소마.png"></span>
+                    <span class="item"><img class="cont-img" src="image/식극의 소마.png"></span>
+                    <span class="item"><img class="cont-img" src="image/식극의 소마.png"></span>
+                    <span class="item"><img class="cont-img" src="image/식극의 소마.png"></span>
+                    <span class="item"><img class="cont-img" src="image/식극의 소마.png"></span>
+                    <span class="item"><img class="cont-img" src="image/식극의 소마.png"></span>
+                </div>
+            </div>
+        </div>
+>>>>>>> 8d4f8cb9cafb15646c38754f41adf9c4c022bf9a
 {% endblock %}
