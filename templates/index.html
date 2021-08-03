@@ -1,130 +1,132 @@
 {% extends '_layout.html' %}
 
 {% block content %}
-    <div class="row infinite-container">
-        {% for post in posts %}
-            <div class="infinite-item">
-                <div>
-                    <div class="content">
-                        <div>
-                            <ul class="navbar navbar-light navbar-expand-lg navbar-light" style="margin-top: -1rem; margin-bottom: -.2rem;">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">
-                                        <img src="{{ post.author.profile_pic.url }}" style="border-radius: 20px; margin-left: -3rem;" width="30rem" class="d-inline-block" alt="">
-                                        <bold class="user" style="color: black;">&nbsp;{{ post.author.nickname }}</bold>
-                                    </a>
-                                </li>
-                                <li>
-                                    <p style="padding-top: .6rem; text-align: center;"></p>
-                                </li>
-                                <li class="nav-item dropdown ms-auto" style="padding-bottom: .5rem;">
-                                    <a class="nav-link" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fas fa-caret-down" style="color: #8E8E8E;"></i>
-                                    </a>
-                                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                        <li><a class="dropdown-item" href="/editpost?id={{ post.id }}">수정</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="#">삭제</a></li>
-                                    </ul>
-                                </li>
-                            </ul>
-                            <div class="border rounded-3" style="width: 100%;">
-                                <div style="position: relative; padding-top: 100%; overflow: hidden">
-                                    <img style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;" src="{{ post.image.url }}" alt="">
+    <section class="container">
+        <div class="row infinite-container">
+            {% for post in posts %}
+                <div class="infinite-item">
+                    <div>
+                        <div class="content">
+                            <div>
+                                <ul class="navbar navbar-light navbar-expand-lg navbar-light" style="margin-top: -1rem; margin-bottom: -.2rem;">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="#">
+                                            <img src="{{ post.author.profile_pic.url }}" style="border-radius: 20px; margin-left: -3rem;" width="30rem" class="d-inline-block" alt="">
+                                            <bold class="user" style="color: black;">&nbsp;{{ post.author.nickname }}</bold>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <p style="padding-top: .6rem; text-align: center;"></p>
+                                    </li>
+                                    <li class="nav-item dropdown ms-auto" style="padding-bottom: .5rem;">
+                                        <a class="nav-link" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-caret-down" style="color: #8E8E8E;"></i>
+                                        </a>
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                            <li><a class="dropdown-item" href="/editpost?id={{ post.id }}">수정</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="#">삭제</a></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                                <div class="border rounded-3" style="width: 100%;">
+                                    <div style="position: relative; padding-top: 100%; overflow: hidden">
+                                        <img style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;" src="{{ post.image.url }}" alt="">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div>
                             <div>
-                                <div class="lov">
-                                    <i class="far fa-heart fa-sm"></i>
-                                </div>
                                 <div>
-                                    <p class="explanation">
-                                        <bold class="user">{{ post.author.nickname }}</bold>&nbsp;&nbsp;{{ post.description|truncatechars:20 }}
-                                    </p>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="commet">
-                                    <p class="sympathy">
-                                        <bold class="user">redesigned</bold>&nbsp;&nbsp;ㅁㄴㅇㄹ
-                                    </p>
-                                    <p class="sympathy">
-                                        <bold class="user">redesigned</bold>&nbsp;&nbsp;ㅁㄴㅇㄹ
-                                    </p>
-                                    <p class="sympathy">
-                                        <bold class="user">redesigned</bold>&nbsp;&nbsp;ㅁㄴㅇㄹ
-                                    </p>
-                                    <a>
-                                        <p class="sympathy" style="color: #8E8E8E; margin-left: .2rem;">
-                                            댓글 더보기
+                                    <div class="lov">
+                                        <i class="far fa-heart fa-sm"></i>
+                                    </div>
+                                    <div>
+                                        <p class="explanation">
+                                            <bold class="user">{{ post.author.nickname }}</bold>&nbsp;&nbsp;{{ post.description|truncatechars:20 }}
                                         </p>
-                                    </a>
+                                    </div>
                                 </div>
                                 <div>
-                                    <p style="font-size: 9px; color: #8E8E8E; margin-bottom: auto;">
-                                        &nbsp;&nbsp;{{ post.created_at.date }}
-                                    </p>
+                                    <div class="commet">
+                                        <p class="sympathy">
+                                            <bold class="user">redesigned</bold>&nbsp;&nbsp;ㅁㄴㅇㄹ
+                                        </p>
+                                        <p class="sympathy">
+                                            <bold class="user">redesigned</bold>&nbsp;&nbsp;ㅁㄴㅇㄹ
+                                        </p>
+                                        <p class="sympathy">
+                                            <bold class="user">redesigned</bold>&nbsp;&nbsp;ㅁㄴㅇㄹ
+                                        </p>
+                                        <a>
+                                            <p class="sympathy" style="color: #8E8E8E; margin-left: .2rem;">
+                                                댓글 더보기
+                                            </p>
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <p style="font-size: 9px; color: #8E8E8E; margin-bottom: auto;">
+                                            &nbsp;&nbsp;{{ post.created_at.date }}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="comment">
-                        <form class="form-inline">
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="댓글 달기">
-                                <button style="width: 70px;">게시</button>
-                            </div>
-                        </form>
+                        <div class="comment">
+                            <form class="form-inline">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="댓글 달기">
+                                    <button style="width: 70px;">게시</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
-    </div>
-    {% if page_obj.has_next %}
-        <a class="infinite-more-link" href="?page={{ page_obj.next_page_number }}"></a>
-    {% endif %}
-    <div class="d-flex justify-content-center" >
-        <div class="spinner-border" role="status"></div>
-    </div>
+            {% endfor %}
+        </div>
+        {% if page_obj.has_next %}
+            <a class="infinite-more-link" href="?page={{ page_obj.next_page_number }}"></a>
+        {% endif %}
+        <div class="d-flex justify-content-center" >
+            <div class="spinner-border" role="status"></div>
+        </div>
 
-    <script type="module" src="/static/jquery/jquery-3.2.1.min.js"></script>
-    <script type="module">
-        $.ajax({
-            type: 'GET',
-            url:'/check',
-            success:function(res){
-                if(res.s === "false") {
-                    location.href = "/login"
+        <script type="module" src="/static/jquery/jquery-3.2.1.min.js"></script>
+        <script type="module">
+            $.ajax({
+                type: 'GET',
+                url:'/check',
+                success:function(res){
+                    if(res.s === "false") {
+                        location.href = "/login"
+                    }
                 }
-            }
-        })
-    </script>
-    <script src="/static/jquery/jquery-3.2.1.min.js"></script>
-    <script src="/static/el-pagination/js/jquery.waypoints.min.js"></script>
-    <script src="/static/el-pagination/js/infinite.min.js"></script>
-    <script>
-        let infinite = new Waypoint.Infinite({
-            element: $('.infinite-container')[0],
-            handler: function(direction) {
-        },
-        offset: 'bottom-in-view',
+            })
+        </script>
+        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
+        <script src="/static/el-pagination/js/jquery.waypoints.min.js"></script>
+        <script src="/static/el-pagination/js/infinite.min.js"></script>
+        <script>
+            let infinite = new Waypoint.Infinite({
+                element: $('.infinite-container')[0],
+                handler: function(direction) {
+            },
+            offset: 'bottom-in-view',
 
-        onBeforePageLoad: function () {
-        $('.spinner-border').show();
-        },
-        onAfterPageLoad: function () {
-        $('.spinner-border').hide();
-        }
-        });
-    </script>
-    <script>
-        window.onload = function() {
-            $('.spinner-border').hide();
-        }
-        $(document).ready(function(){
+            onBeforePageLoad: function () {
             $('.spinner-border').show();
-        });
-    </script>
+            },
+            onAfterPageLoad: function () {
+            $('.spinner-border').hide();
+            }
+            });
+        </script>
+        <script>
+            window.onload = function() {
+                $('.spinner-border').hide();
+            }
+            $(document).ready(function(){
+                $('.spinner-border').show();
+            });
+        </script>
+    </section>
 {% endblock %}

@@ -2,130 +2,132 @@
 {% extends '_layout.html' %}
 
 {% block content %}
-    <div class="content post-content">
-        <h6 style="text-align: center;"><strong>작성</strong></h6>
-    </div>
-    <div class="content post-content add-post content-ver1">
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="form-group left left-margin">
-                <div class="border rounded-3" style="width: 500px;">
-                    <div style="position: relative; padding-top: 100%; overflow: hidden">
-                        <img id="preview" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;" src="https://dummyimage.com/500x500/000000/fff" alt="">
+    <section class="container">
+        <div class="content post-content">
+            <h6 style="text-align: center;"><strong>작성</strong></h6>
+        </div>
+        <div class="content post-content add-post content-ver1">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group left left-margin">
+                    <div class="border rounded-3" style="width: 500px;">
+                        <div style="position: relative; padding-top: 100%; overflow: hidden">
+                            <img id="preview" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;" src="https://dummyimage.com/500x500/000000/fff" alt="">
+                        </div>
+                    </div>
+                    <input type="file" class="form-control-file" style="margin-top: 15px; margin-bottom: 15px;" id="img" name="img" accept="image/*">
+                </div>
+                <div class="left">
+                    <div>
+                        <p>
+                            <textarea class="form-control" id="desc" name="desc" placeholder="설명"></textarea>
+                        </p>
+                    </div>
+                    <div class="col-12 btn-group">
+                        <button type="submit" id="submit" class="btn btn-primary mx-1" disabled>게시</button>
                     </div>
                 </div>
-                <input type="file" class="form-control-file" style="margin-top: 15px; margin-bottom: 15px;" id="img" name="img" accept="image/*">
-            </div>
-            <div class="left">
-                <div>
-                    <p>
-                        <textarea class="form-control" id="desc" name="desc" placeholder="설명"></textarea>
-                    </p>
-                </div>
-                <div class="col-12 btn-group">
-                    <button type="submit" id="submit" class="btn btn-primary mx-1" disabled>게시</button>
-                </div>
-            </div>
-        </form>
-    </div>
-    <script>
-        $(document).ready(function () {
-            $('#img').on('input change', function () {
-                if ($(this).val()) {
-                    $('#submit').prop('disabled', false);
+            </form>
+        </div>
+        <script>
+            $(document).ready(function () {
+                $('#img').on('input change', function () {
+                    if ($(this).val()) {
+                        $('#submit').prop('disabled', false);
+                    } else {
+                        $('#submit').prop('disabled', true);
+                    }
+                });
+            });
+        </script>
+        <script>
+            $("#img").change(function () {
+                let self = this;
+                let url = $(this).val();
+                let ext = url.substring(url.lastIndexOf(".") + 1).toLowerCase();
+                if (self.files && self.files[0] && (ext == "gif" || ext == "png" || ext == "jpeg" || ext == "jpg")) {
+                    resize(self.files[0], ext);
                 } else {
-                    $('#submit').prop('disabled', true);
+                    $("#preview").attr("src", "https://dummyimage.com/500x500/000000/fff");
                 }
             });
-        });
-    </script>
-    <script>
-        $("#img").change(function () {
-            let self = this;
-            let url = $(this).val();
-            let ext = url.substring(url.lastIndexOf(".") + 1).toLowerCase();
-            if (self.files && self.files[0] && (ext == "gif" || ext == "png" || ext == "jpeg" || ext == "jpg")) {
-                resize(self.files[0], ext);
-            } else {
-                $("#preview").attr("src", "https://dummyimage.com/500x500/000000/fff");
-            }
-        });
-        //https://stackoverflow.com/questions/24837646/onchange-file-input-change-img-src-and-change-image-color
+            //https://stackoverflow.com/questions/24837646/onchange-file-input-change-img-src-and-change-image-color
 
-        function resize(img,format) {
-            console.log("got format: " + format);
-            let reader = new FileReader();
-            reader.onload = function (readerEvent) {
-                let image = new Image();
-                image.onload = function (imageEvent) {
-                    let min_width = 0;
-                    let min_height = 0;
-                    let canvas = document.createElement('canvas'),
-                        width = image.width,
-                        height = image.height,
-                        max_size = 700;
-                    if (width < height) {
-                        if (width > max_size) {
-                            height *= max_size / width;
-                            width = max_size;
+            function resize(img,format) {
+                console.log("got format: " + format);
+                let reader = new FileReader();
+                reader.onload = function (readerEvent) {
+                    let image = new Image();
+                    image.onload = function (imageEvent) {
+                        let min_width = 0;
+                        let min_height = 0;
+                        let canvas = document.createElement('canvas'),
+                            width = image.width,
+                            height = image.height,
+                            max_size = 700;
+                        if (width < height) {
+                            if (width > max_size) {
+                                height *= max_size / width;
+                                width = max_size;
+                            }
+                        } else {
+                            if (height > max_size) {
+                                width *= max_size / height;
+                                height = max_size;
+                            }
                         }
-                    } else {
-                        if (height > max_size) {
-                            width *= max_size / height;
-                            height = max_size;
+                        canvas.width = width;
+                        canvas.height = height;
+                        canvas.getContext('2d').drawImage(image, min_width, min_height, width, height);
+                        let dataUrl = canvas.toDataURL('image/jpeg');
+                        switch(format){
+                            case "png":
+                                dataUrl = canvas.toDataURL("image/png");
+                                break;
                         }
+                        let resizedImage = dataURLToBlob(dataUrl);
+                        $.event.trigger({
+                            type: "imageResized",
+                            blob: resizedImage,
+                            url: dataUrl
+                        });
                     }
-                    canvas.width = width;
-                    canvas.height = height;
-                    canvas.getContext('2d').drawImage(image, min_width, min_height, width, height);
-                    let dataUrl = canvas.toDataURL('image/jpeg');
-                    switch(format){
-                        case "png":
-                            dataUrl = canvas.toDataURL("image/png");
-                            break;
-                    }
-                    let resizedImage = dataURLToBlob(dataUrl);
-                    $.event.trigger({
-                        type: "imageResized",
-                        blob: resizedImage,
-                        url: dataUrl
+                    image.src = readerEvent.target.result;
+                }
+
+                reader.readAsDataURL(img);
+            }
+            $(document).on("imageResized", function (event) {
+                $("#preview").attr("src", event.url);
+            });
+            let dataURLToBlob = function (dataURL) {
+                let BASE64_MARKER = ';base64,';
+                if (dataURL.indexOf(BASE64_MARKER) == -1) {
+                    let parts = dataURL.split(',');
+                    let contentType = parts[0].split(':')[1];
+                    let raw = parts[1];
+
+                    return new Blob([raw], {
+                        type: contentType
                     });
                 }
-                image.src = readerEvent.target.result;
-            }
 
-            reader.readAsDataURL(img);
-        }
-        $(document).on("imageResized", function (event) {
-            $("#preview").attr("src", event.url);
-        });
-        let dataURLToBlob = function (dataURL) {
-            let BASE64_MARKER = ';base64,';
-            if (dataURL.indexOf(BASE64_MARKER) == -1) {
-                let parts = dataURL.split(',');
+                let parts = dataURL.split(BASE64_MARKER);
                 let contentType = parts[0].split(':')[1];
-                let raw = parts[1];
+                let raw = window.atob(parts[1]);
+                let rawLength = raw.length;
 
-                return new Blob([raw], {
+                let uInt8Array = new Uint8Array(rawLength);
+
+                for (let i = 0; i < rawLength; ++i) {
+                    uInt8Array[i] = raw.charCodeAt(i);
+                }
+
+                return new Blob([uInt8Array], {
                     type: contentType
                 });
             }
-
-            let parts = dataURL.split(BASE64_MARKER);
-            let contentType = parts[0].split(':')[1];
-            let raw = window.atob(parts[1]);
-            let rawLength = raw.length;
-
-            let uInt8Array = new Uint8Array(rawLength);
-
-            for (let i = 0; i < rawLength; ++i) {
-                uInt8Array[i] = raw.charCodeAt(i);
-            }
-
-            return new Blob([uInt8Array], {
-                type: contentType
-            });
-        }
-        //https://stackoverflow.com/questions/23945494/use-html5-to-resize-an-image-before-upload
-    </script>
+            //https://stackoverflow.com/questions/23945494/use-html5-to-resize-an-image-before-upload
+        </script>
+    </section>
 {% endblock %}

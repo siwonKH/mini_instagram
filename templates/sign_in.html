@@ -2,98 +2,100 @@
 {% extends '_layout.html' %}
 
 {% block content %}
-    <div class="d-flex justify-content-center my-5">
-        <div class="col-3 text-center m-10 border rounded">
-            <div class="col text-center m-5"></div>
-            <div class="col text-center">
-                <a class="navbar-brand" href="">
-                    <img src="./static/image/mini_instargram_logo.png" alt="" width="250" class="d-inline-block">
-                </a>
-            </div>
-            <div class="col text-center m-5"></div>
-
-            <form class="row" id="login_form" method="post">
-                {% csrf_token %}
-                <div class="col text-center d-grid gap-2">
-                    <div class="col-md-12">
-                        <label class="col-8">
-                            <input aria-label="이메일" id="email" class="form-control" aria-required="true" maxlength="50" name="email" type="email" placeholder="이메일" onfocus="this.placeholder = ''" onblur="this.placeholder = '이메일'">
-                        </label>
-                    </div>
-                    <div id="id-place">
-
-                    </div>
-                    <div id="pw-place" class="col-md-12">
-                        <label class="col-8">
-                            <input aria-label="비밀번호" id="password" class="form-control" aria-required="true" name="password" type="password" placeholder="비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '비밀번호'">
-                        </label>
-                    </div>
-                    <div class="col text-center m-2"></div>
-                    <div class="col-md-12">
-                        <button id="submit" type="button" class="btn btn-primary col-8" onclick="ajaxLogin()" disabled>로그인</button>
-                    </div>
-                    <div class="my-3">
-                        <div class="col text-center m-2">
-                            <a href="#">비밀번호 찾기</a>
-                        </div>
-                        <div class="col text-center m-2">
-                            <a href="#">회원가입하기</a>
-                        </div>
-                    </div>
+    <section class="container">
+        <div class="d-flex justify-content-center my-5">
+            <div class="col-3 text-center m-10 border rounded">
+                <div class="col text-center m-5"></div>
+                <div class="col text-center">
+                    <a class="navbar-brand" href="">
+                        <img src="./static/image/mini_instargram_logo.png" alt="" width="250" class="d-inline-block">
+                    </a>
                 </div>
-            </form>
+                <div class="col text-center m-5"></div>
+
+                <form class="row" id="login_form" method="post">
+                    {% csrf_token %}
+                    <div class="col text-center d-grid gap-2">
+                        <div class="col-md-12">
+                            <label class="col-8">
+                                <input aria-label="이메일" id="email" class="form-control" aria-required="true" maxlength="50" name="email" type="email" placeholder="이메일" onfocus="this.placeholder = ''" onblur="this.placeholder = '이메일'">
+                            </label>
+                        </div>
+                        <div id="id-place">
+
+                        </div>
+                        <div id="pw-place" class="col-md-12">
+                            <label class="col-8">
+                                <input aria-label="비밀번호" id="password" class="form-control" aria-required="true" name="password" type="password" placeholder="비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '비밀번호'">
+                            </label>
+                        </div>
+                        <div class="col text-center m-2"></div>
+                        <div class="col-md-12">
+                            <button id="submit" type="button" class="btn btn-primary col-8" onclick="ajaxLogin()" disabled>로그인</button>
+                        </div>
+                        <div class="my-3">
+                            <div class="col text-center m-2">
+                                <a href="#">비밀번호 찾기</a>
+                            </div>
+                            <div class="col text-center m-2">
+                                <a href="#">회원가입하기</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
-    <script>
-        $(document).ready(function () {
-            $('#email').on('input change', function () {
-                if ($(this).val().length > 3) {
-                    $('#submit').prop('disabled', false);
-                } else {
-                    $('#submit').prop('disabled', true);
-                }
+        <script>
+            $(document).ready(function () {
+                $('#email').on('input change', function () {
+                    if ($(this).val().length > 3) {
+                        $('#submit').prop('disabled', false);
+                    } else {
+                        $('#submit').prop('disabled', true);
+                    }
+                });
             });
-        });
-    </script>
-    <script src="/static/jquery/jquery-3.2.1.min.js"></script>
-    <script>
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
+        </script>
+        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
+        <script>
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
                     }
                 }
+                return cookieValue;
             }
-            return cookieValue;
-        }
-    </script>
-    <script>
-        function ajaxLogin() {
-            $.ajax({
-                type: 'POST',
-                url:'/login',
-                data: {
-                    'csrfmiddlewaretoken': getCookie('csrftoken'),
-                    'email': $('#email').val(),
-                    'password': $('#password').val()
-                },
-                success:function(res){
-                    if(res.msg === "success"){
-                        location.href = "/"
+        </script>
+        <script>
+            function ajaxLogin() {
+                $.ajax({
+                    type: 'POST',
+                    url:'/login',
+                    data: {
+                        'csrfmiddlewaretoken': getCookie('csrftoken'),
+                        'email': $('#email').val(),
+                        'password': $('#password').val()
+                    },
+                    success:function(res){
+                        if(res.msg === "success"){
+                            location.href = "/"
+                        }
+                        else if(res.msg === "id_fail") {
+                            alert("wrong email")
+                        } else if(res.msg === "pw_fail") {
+                            alert("wrong password")
+                        }
+                        $('#password').value = ""
                     }
-                    else if(res.msg === "id_fail") {
-                        alert("wrong email")
-                    } else if(res.msg === "pw_fail") {
-                        alert("wrong password")
-                    }
-                    $('#password').value = ""
-                }
-            })
-        }
-    </script>
+                })
+            }
+        </script>
+    </section>
 {% endblock %}
