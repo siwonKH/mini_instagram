@@ -162,3 +162,12 @@ class LogOut(views.View):
     def get(request):
         logout(request)
         return redirect('/')
+
+
+class MyPage(views.View):
+    @staticmethod
+    def get(request):
+        user_pk = request.session.get('user')
+        if user_pk:
+            return render(request, 'mypage.html')
+        return redirect('/login')
