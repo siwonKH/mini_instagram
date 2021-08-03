@@ -1,0 +1,32 @@
+<nav class="pad navbar navbar-expand-lg navbar-light pl-2 pr-2">
+    <a class="navbar-brand" href="/home">
+        <img src="./static/image/mini_instargram_logo.png" alt="" width="160" class="d-inline-block">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+        aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/">홈</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/addpost">게시글 추가</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="./static/image/profil.png" width="30rem" class="d-inline-block rounded-circle" alt="">
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#">프로필</a></li>
+                    <li><a class="dropdown-item" href="#">설정</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
