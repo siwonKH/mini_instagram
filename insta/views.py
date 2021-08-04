@@ -170,5 +170,9 @@ class MyPage(views.View):
     def get(request):
         user_pk = request.session.get('user')
         if user_pk:
-            return render(request, 'mypage.html')
+            user = User.objects.get(id=user_pk)
+            context = {
+                'user': user,
+            }
+            return render(request, 'mypage.html', context)
         return redirect('/login')
