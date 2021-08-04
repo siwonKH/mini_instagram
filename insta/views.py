@@ -161,8 +161,22 @@ class LogOut(views.View):
     # 로그아웃
     @staticmethod
     def get(request):
-        logout(request)
+        user_pk = request.session.get('user')
+        if not user_pk:
+            logout(request)
         return redirect('/')
+
+
+class SignUp(views.View):
+    def post(self, request):
+        pass
+
+    @staticmethod
+    def get(request):
+        user_pk = request.session.get('user')
+        if user_pk:
+            return redirect('/')
+        return render(request, 'sign_up.html')
 
 
 class MyPage(views.View):
