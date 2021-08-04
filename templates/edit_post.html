@@ -8,6 +8,7 @@
         <div class="content post-content add-post content-ver1">
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
+                <input name="id" value="{{ id }}" hidden>
                 <div class="form-group left left-margin">
                     <div class="border rounded-3" style="width: 500px; height: 500px; overflow: hidden">
                         <img src="{{ image.url }}" alt="">
