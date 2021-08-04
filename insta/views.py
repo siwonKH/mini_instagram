@@ -9,6 +9,7 @@ from django import views
 from django.contrib.auth import logout
 from .models import User, Post
 from django.views.generic.list import ListView
+from .utils import get_random_unicode
 
 
 class PostsView(ListView):
@@ -166,14 +167,6 @@ class LogOut(views.View):
         return redirect('/login')
 
 
-def make_salt():
-    salt = ""
-    for i in range(0, 8):
-        rand = random.randint(100, 1000)
-        salt += chr(rand)
-    return salt
-
-
 class SignUp(views.View):
     def post(self, request):
         name = request.POST['name']
@@ -189,7 +182,7 @@ class SignUp(views.View):
         if password_chk != password:
             context = {'msg': "pw_fail"}
             return HttpResponse(json.dumps(context), content_type="application/json")
-        salt = make_salt()
+        salt = get_random_unicode(10)
         user.salt = salt
         salted_password = str(salt) + str(password)
         user.password = hashlib.sha256(salted_password.encode()).hexdigest()
