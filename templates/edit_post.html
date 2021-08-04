@@ -21,11 +21,16 @@
                         </p>
                     </div>
                     <div class="col-12 btn-group">
-                        <button type="button" class="btn btn-secondary mx-1" >취소</button>
+                        <button type="button" class="btn btn-secondary mx-1" onclick="cancelBtn()" >취소</button>
                         <button type="submit" class="btn btn-primary mx-1">완료</button>
                     </div>
                 </div>
             </form>
         </div>
+    <script>
+        function cancelBtn() {
+            location.href = "/";
+        }
+    </script>
     </section>
 {% endblock %}
