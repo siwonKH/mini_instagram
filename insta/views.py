@@ -1,5 +1,6 @@
 import hashlib
 import json
+import random
 
 from django.http import HttpResponse
 from django.http.response import HttpResponseNotAllowed
@@ -165,9 +166,35 @@ class LogOut(views.View):
         return redirect('/login')
 
 
+def make_salt():
+    salt = ""
+    for i in range(0, 8):
+        rand = random.randint(100, 1000)
+        salt += chr(rand)
+    return salt
+
+
 class SignUp(views.View):
     def post(self, request):
-        pass
+        name = request.POST['name']
+        nickname = request.POST['nickname']
+        email = request.POST['email']
+        password = request.POST['password']
+        password_chk = request.POST['password-check']
+
+        user = User()
+        user.name = name
+        user.nickname = nickname
+        user.email = email
+        if password_chk != password:
+            context = {'msg': "pw_fail"}
+            return HttpResponse(json.dumps(context), content_type="application/json")
+        salt = make_salt()
+        user.salt = salt
+        salted_password = str(salt) + str(password)
+        user.password = hashlib.sha256(salted_password.encode()).hexdigest()
+        user.save()
+        return redirect('/login')
 
     @staticmethod
     def get(request):
