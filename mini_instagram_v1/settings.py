@@ -9,12 +9,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=c(t5nh6@05qb1x#q5t=edz(&ekqs%pbjyh)+y#3^(xt072vu3'  # 보안키 그대로 노출~
+
+SECRET_FILE_DIRECTORY = r'C:\django_key\secret.txt'
+
+with open(SECRET_FILE_DIRECTORY, encoding='utf-8') as f:
+    secret = f.read()
+    SECRET_KEY = secret.split('SECRET_KEY')[1].split('=')[1].split(';')[0].replace(" ", '')
+    DATABASE_ENGINE = secret.split('DATABASE_ENGINE')[1].split('=')[1].split(';')[0].strip()
+    DATABASE_NAME = secret.split('DATABASE_NAME')[1].split('=')[1].split(';')[0].strip()
+    DATABASE_USER = secret.split('DATABASE_USER')[1].split('=')[1].split(';')[0].strip()
+    DATABASE_PASS = secret.split('DATABASE_PASS')[1].split('=')[1].split(';')[0].strip()
+    DATABASE_HOST = secret.split('DATABASE_HOST')[1].split('=')[1].split(';')[0].strip()
+    DATABASE_PORT = secret.split('DATABASE_PORT')[1].split('=')[1].split(';')[0].strip()
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -62,12 +74,15 @@ WSGI_APPLICATION = 'mini_instagram_v1.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': DATABASE_ENGINE,
+        'NAME': DATABASE_NAME,
+        'USER': DATABASE_USER,
+        'PASSWORD': DATABASE_PASS,
+        'HOST': DATABASE_HOST,
+        'PORT': DATABASE_PORT
     }
 }
 
@@ -115,4 +130,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, r'insta\media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
