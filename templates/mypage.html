@@ -5,11 +5,11 @@
         <div class="mypage-content">
             <div class="mypage-head">
                 <div class="profil">
-                    <img src="/static/image/profil.png" class="profil-photo" alt="">
+                    <img src="{{ user.profile_pic.url }}" class="profil-photo" alt="">
                 </div>
                 <div class="kit">
                     <div>
-                        <h2 class="nick">GBsw1234</h2>
+                        <h2 class="nick">{{ user.nickname }}</h2>
                         <a href="#"><button class="profil-button">프로필 편집</button></a>
                     </div>
                     <div class="follo">
@@ -18,7 +18,7 @@
                     </div>
                     <div>
                         <p>
-                            printf("Hello, World!");
+                            {{ user.introduce }}
                         </p>
                     </div>
                 </div>
