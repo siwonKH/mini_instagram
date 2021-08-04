@@ -161,10 +161,8 @@ class LogOut(views.View):
     # 로그아웃
     @staticmethod
     def get(request):
-        user_pk = request.session.get('user')
-        if not user_pk:
-            logout(request)
-        return redirect('/')
+        logout(request)
+        return redirect('/login')
 
 
 class SignUp(views.View):
