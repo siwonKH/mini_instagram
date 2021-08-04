@@ -111,6 +111,7 @@ class EditPost(views.View):
             return redirect('/')
 
         context = {
+            'id': post_id,
             'image': post.image,
             'desc': post.description
         }
