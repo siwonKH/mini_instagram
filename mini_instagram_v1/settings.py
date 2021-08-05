@@ -32,7 +32,7 @@ with open(SECRET_FILE_DIRECTORY, encoding='utf-8') as f:
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -137,7 +137,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, r'insta\media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_HSTS_SECONDS = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
