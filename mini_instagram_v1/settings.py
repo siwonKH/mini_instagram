@@ -15,12 +15,20 @@ SECRET_FILE_DIRECTORY = r'C:\django_key\secret.txt'
 with open(SECRET_FILE_DIRECTORY, encoding='utf-8') as f:
     secret = f.read()
     SECRET_KEY = secret.split('SECRET_KEY')[1].split('=')[1].split(';')[0].replace(" ", '')
+
     DATABASE_ENGINE = secret.split('DATABASE_ENGINE')[1].split('=')[1].split(';')[0].strip()
     DATABASE_NAME = secret.split('DATABASE_NAME')[1].split('=')[1].split(';')[0].strip()
     DATABASE_USER = secret.split('DATABASE_USER')[1].split('=')[1].split(';')[0].strip()
     DATABASE_PASS = secret.split('DATABASE_PASS')[1].split('=')[1].split(';')[0].strip()
     DATABASE_HOST = secret.split('DATABASE_HOST')[1].split('=')[1].split(';')[0].strip()
     DATABASE_PORT = secret.split('DATABASE_PORT')[1].split('=')[1].split(';')[0].strip()
+
+    EMAIL_HOST = secret.split('EMAIL_HOST')[1].split('=')[1].split(';')[0].strip()
+    EMAIL_PORT = secret.split('EMAIL_PORT')[1].split('=')[1].split(';')[0].strip()
+    EMAIL_HOST_USER = secret.split('EMAIL_HOST_USER')[1].split('=')[1].split(';')[0].strip()
+    EMAIL_HOST_PASSWORD = secret.split('EMAIL_HOST_PASSWORD')[1].split('=')[1].split(';')[0].strip()
+    EMAIL_USE_TLS = True
+    DEFAULT_FROM_EMAIL = '미니 인별그램 ' + f'<{EMAIL_HOST_USER}>'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -85,7 +93,6 @@ DATABASES = {
         'PORT': DATABASE_PORT
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
