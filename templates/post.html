@@ -26,8 +26,12 @@
     <section class="container">
         <div class="post-content content">
             <div class="left left-margin post-img">
-                <!-- 사진 -->
-                <img src="{{ post.image.url }}" alt="">
+                <div class="border rounded-3" style="width: 100%;">
+                    <div style="position: relative; padding-top: 100%; overflow: hidden">
+                        <img style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;" src="{{ post.image.url }}" alt="">
+                    </div>
+                </div>
+{#                <img src="{{ post.image.url }}" alt="">#}
             </div>
             <div class="left cont">
                 <div>
@@ -36,7 +40,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="#">
                                 <img src="{{ post.author.profile_pic.url }}" style="border-radius: 20px; margin-left: -3rem;" width="30rem" class="d-inline-block" alt="">
-                                <bold class="user" style="color: black;">&nbsp;{{ post.author.nickname }}</bold>
+                                <b class="user" style="color: black;">&nbsp;{{ post.author.nickname }}</b>
                             </a>
                         </li>
                         <li>
@@ -64,26 +68,30 @@
                         <!-- 댓글 -->
                         <!-- 설명 -->
                         <div class="commet" style="overflow:auto;">
-                            <a href="#">
-                                <p class="explanation" style="color: black;">
-                                    <img src="./image/profil.png" style="border-radius: 20px;" width="30rem"
-                                        class="d-inline-block" alt="">
-                                    <bold class="user" style="color: black;">&nbsp;jademon</bold>
-                            </a>
-                            &nbsp;&nbsp;오늘은 식극의 소마를 봤다</p>
-                            <a href="#">
-                                <p class="sympathy" style="color: black;">
-                                    <img src="./image/profil.png" style="border-radius: 20px;" width="30rem"
-                                        class="d-inline-block" alt="">
-                                    <bold class="user" style="color: black;">&nbsp;redesigned</bold>
-                            </a>
-                            &nbsp;&nbsp;ㅁㄴㅇㄹ</p>
+                            <p class="explanation" style="color: black;">
+                                <a href="#">
+                                    <img src="{{ post.author.profile_pic.url }}" style="border-radius: 20px;" width="30rem" class="d-inline-block" alt="">
+                                    <b class="user" style="color: black;">&nbsp;{{ post.author.nickname }}</b>
+                                </a>
+                                &nbsp;&nbsp;{{ post.description }}
+                            </p>
+                            <div id="comments"></div>
+                                <div id="comment">
+                                    <p class="sympathy" style="color: black;">
+                                        <a href="#">
+                                            <img src="./image/profil.png" style="border-radius: 20px;" width="30rem" class="d-inline-block" alt="">
+                                            <strong class="user" style="color: black;">&nbsp;redesigned</strong>
+                                        </a>
+                                        &nbsp;&nbsp;ㅁㄴㅇㄹ
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div>
                         <div>
                             <p style="font-size: 9px; color: #8E8E8E; margin-top: .2rem; margin-bottom: auto;">
-                                &nbsp;&nbsp;2021년 7월 27일
+                                &nbsp;&nbsp;{{ post.created_at.date }}
                             </p>
                         </div>
                         <div class="lov" style="margin: .3rem;">
@@ -91,10 +99,11 @@
                         </div>
 
                         <div class="commen">
-                            <form class="form-inline">
+                            <form class="form-inline" method="post">
+                                {% csrf_token %}
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="댓글 달기" />
-                                    <button style="width: 70px;">게시</button>
+                                    <input id="comment-input" type="text" class="form-control" placeholder="댓글 달기" />
+                                    <button id="submit" type="button" style="width: 70px;" disabled>게시</button>
                                 </div>
                             </form>
                         </div>
@@ -102,6 +111,66 @@
                 </div>
             </div>
         </div>
+        <script>
+            $(document).ready(function () {
+                $('#comment-input').on('input change', function () {
+                    if ($(this).val().length > 0) {
+                        document.getElementById('submit').style.color = "#0095f6"
+                        $('#submit').prop('disabled', false);
+                    } else {
+                        document.getElementById('submit').style.color = "#B7E1FD"
+                        $('#submit').prop('disabled', true);
+                    }
+                });
+            });
+        </script>
+        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
+        <script>
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        </script>
+        <script>
+            function ajaxLogin() {
+                const submitBtn = $('#submit')
+                submitBtn.prop('disabled', true);
 
+                const email = $('#comment-input').val()
+                if(email.length > 3 && password.length > 0) {
+                    $.ajax({
+                        type: 'POST',
+                        url:'/login',
+                        data: {
+                            'csrfmiddlewaretoken': getCookie('csrftoken'),
+                            'email': email,
+                            'password': password
+                        },
+                        success:function(res){
+                            if(res.msg === "success"){
+                                location.href = "/"
+                            }
+                            else if(res.msg === "id_fail") {
+                                alert("wrong email")
+                            } else if(res.msg === "pw_fail") {
+                                alert("wrong password")
+                            }
+                            $('#password').value = ""
+                        }
+                    })
+                }
+                submitBtn.prop('disabled', false);
+            }
+        </script>
     </section>
 {% endblock %}

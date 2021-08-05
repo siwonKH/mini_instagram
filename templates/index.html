@@ -1,5 +1,27 @@
 {% extends '_layout.html' %}
 
+{% block navbar %}
+    <li class="nav-item">
+        <a class="nav-link active" href="/">홈</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/addpost">게시글 추가</a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{{ profile_pic }}" width="30rem" class="d-inline-block rounded-circle" alt="">
+        </a>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/mypage">프로필</a></li>
+            <li><a class="dropdown-item" href="#">설정</a></li>
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
+        </ul>
+    </li>
+{% endblock %}
+
 {% block content %}
     <section class="container">
         <div class="row infinite-container">
@@ -18,6 +40,7 @@
                                     <li>
                                         <p style="padding-top: .6rem; text-align: center;"></p>
                                     </li>
+                                    {% if user_id == post.author.id %}
                                     <li class="nav-item dropdown ms-auto" style="padding-bottom: .5rem;">
                                         <a class="nav-link" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fas fa-caret-down" style="color: #8E8E8E;"></i>
@@ -25,9 +48,10 @@
                                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                             <li><a class="dropdown-item" href="/editpost?id={{ post.id }}">수정</a></li>
                                             <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item" href="#">삭제</a></li>
+                                            <li><a class="dropdown-item" href="#" onclick="">삭제</a></li>
                                         </ul>
                                     </li>
+                                    {% endif %}
                                 </ul>
                                 <div class="border rounded-3" style="width: 100%;">
                                     <div style="position: relative; padding-top: 100%; overflow: hidden">
@@ -57,7 +81,7 @@
                                         <p class="sympathy">
                                             <bold class="user">redesigned</bold>&nbsp;&nbsp;ㅁㄴㅇㄹ
                                         </p>
-                                        <a>
+                                        <a href="/post?id={{ post.id }}">
                                             <p class="sympathy" style="color: #8E8E8E; margin-left: .2rem;">
                                                 댓글 더보기
                                             </p>
@@ -127,6 +151,42 @@
             $(document).ready(function(){
                 $('.spinner-border').show();
             });
+        </script>
+        <script>
+            function isElementInViewport (el) {
+                if (typeof jQuery === "function" && el instanceof jQuery) {
+                    el = el[0];
+                }
+                const rect = el.getBoundingClientRect();
+                return (
+                    rect.top >= 0 &&
+                    rect.left >= 0 &&
+                    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /* or $(window).height() */
+                    rect.right <= (window.innerWidth || document.documentElement.clientWidth) /* or $(window).width() */
+                );
+            }
+        </script>
+        <script>
+            function onVisibilityChange(el, callback) {
+                let old_visible;
+                return function () {
+                    let visible = isElementInViewport(el);
+                    if (visible !== old_visible) {
+                        old_visible = visible;
+                        if (typeof callback == 'function') {
+                            callback();
+                        }
+                    }
+                }
+            }
+
+            const handler = onVisibilityChange(el, function() {
+                /* Working on here*/
+            });
+
+
+            // jQuery
+            $(window).on('DOMContentLoaded load resize scroll', handler);
         </script>
     </section>
 {% endblock %}

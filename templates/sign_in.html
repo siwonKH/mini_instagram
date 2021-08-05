@@ -10,6 +10,7 @@
                     <a class="navbar-brand" href="">
                         <img src="./static/image/mini_instargram_logo.png" alt="" width="250" class="d-inline-block">
                     </a>
+                    <h4  style="margin-top: 1.5rem;">로그인</h4>
                 </div>
                 <div class="col text-center m-5"></div>
 
@@ -48,7 +49,16 @@
         <script>
             $(document).ready(function () {
                 $('#email').on('input change', function () {
-                    if ($(this).val().length > 3) {
+                    if ($(this).val().length > 3 && $('#password').val().length > 0) {
+                        $('#submit').prop('disabled', false);
+                    } else {
+                        $('#submit').prop('disabled', true);
+                    }
+                });
+            });
+            $(document).ready(function () {
+                $('#password').on('input change', function () {
+                    if ($(this).val().length > 0 && $('#email').val().length > 3) {
                         $('#submit').prop('disabled', false);
                     } else {
                         $('#submit').prop('disabled', true);
@@ -75,27 +85,42 @@
         </script>
         <script>
             function ajaxLogin() {
-                $.ajax({
-                    type: 'POST',
-                    url:'/login',
-                    data: {
-                        'csrfmiddlewaretoken': getCookie('csrftoken'),
-                        'email': $('#email').val(),
-                        'password': $('#password').val()
-                    },
-                    success:function(res){
-                        if(res.msg === "success"){
-                            location.href = "/"
+                const submitBtn = $('#submit')
+                submitBtn.prop('disabled', true);
+
+                const email = $('#email').val()
+                const password = $('#password').val()
+                if(email.length > 3 && password.length > 0) {
+                    $.ajax({
+                        type: 'POST',
+                        url:'/login',
+                        data: {
+                            'csrfmiddlewaretoken': getCookie('csrftoken'),
+                            'email': email,
+                            'password': password
+                        },
+                        success:function(res){
+                            if(res.msg === "success"){
+                                location.href = "/"
+                            }
+                            else if(res.msg === "id_fail") {
+                                alert("wrong email")
+                            } else if(res.msg === "pw_fail") {
+                                alert("wrong password")
+                            }
+                            $('#password').value = ""
                         }
-                        else if(res.msg === "id_fail") {
-                            alert("wrong email")
-                        } else if(res.msg === "pw_fail") {
-                            alert("wrong password")
-                        }
-                        $('#password').value = ""
-                    }
-                })
+                    })
+                }
+                submitBtn.prop('disabled', false);
             }
+        </script>
+        <script>
+            $('#login_form').keypress(function (e) {
+                if(e.keyCode === 13) {
+                    ajaxLogin()
+                }
+            })
         </script>
     </section>
 {% endblock %}

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import Home, AddPost, EditPost, PostPage, SignUp, Login, LogOut, MyPage
+from .views import Home, PostPage, AddPost, Comment, EditPost, SignUp, Login, LogOut, MyPage
 from .utils import check
 
 app_name = 'insta'
@@ -8,6 +8,7 @@ urlpatterns = [
     path('post', PostPage.as_view()),
     path('addpost', AddPost.as_view()),
     path('editpost', EditPost.as_view()),
+    path('comment', Comment.as_view()),
     path('signup', SignUp.as_view()),
     path('login', Login.as_view()),
     path('logout', LogOut.as_view()),

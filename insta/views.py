@@ -7,7 +7,7 @@ from django.http.response import HttpResponseNotAllowed
 from django.shortcuts import render, redirect, get_object_or_404
 from django import views
 from django.contrib.auth import logout
-from .models import User, Post
+from .models import User, Post, PostLike, PostComment
 from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .utils import get_random_unicode
@@ -59,7 +59,12 @@ class PostPage(views.View):
         post_id = request.GET['id']
         post = get_object_or_404(Post, id=post_id)
 
-        context = {'post': post}
+        comments = PostComment.objects.filter(post_id=post_id)
+
+        context = {
+            'post': post,
+            'comments': comments
+        }
         return render(request, 'post.html', context)
 
 
@@ -96,6 +101,40 @@ class AddPost(views.View):
             context = {'profile_pic': profile_pic}
             return render(request, 'add_post.html', context)
         return redirect('/login')
+
+
+class Comment(views.View):
+    @staticmethod
+    def post(request):
+        user_pk = request.session.get('user')
+        if user_pk:
+            user = User.objects.get(id=user_pk)
+        else:
+            return redirect('/login')
+
+        post_id = request.POST['post_id']
+        comment = request.POST['comment-input']
+
+        if post_id and comment and comment != "":
+            post_comment = PostComment()
+            post_comment.post_id = post_id
+            post_comment.user_id = user
+            post_comment.comment = comment
+            post_comment.save()
+            context = {'response': "success"}
+        else:
+            context = {'response': "fail"}
+        return HttpResponse(json.dumps(context), content_type="application/json")
+
+    @staticmethod
+    def get(request):
+        user_pk = request.session.get('user')
+        if not user_pk:
+            return redirect('/login')
+        post_id = request.GET['post_id']
+        comments = PostComment.objects.filter(post_id=post_id)
+        context = {'comments': comments}
+        return HttpResponse(json.dumps(context), content_type="application/json")
 
 
 class EditPost(views.View):

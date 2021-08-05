@@ -11,7 +11,7 @@ def protected_file(request, path, document_root=None):
     user_pk = request.session.get('user')
     if user_pk:
         return serve(request, path, document_root)
-    return redirect('/')
+    return redirect('/login')
 
 
 urlpatterns = [
