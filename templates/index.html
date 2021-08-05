@@ -66,21 +66,19 @@
                                     </div>
                                     <div>
                                         <p class="explanation">
-                                            <bold class="user">{{ post.author.nickname }}</bold>&nbsp;&nbsp;{{ post.description|truncatechars:20 }}
+                                            <bold class="user">{{ post.author.nickname }}</bold>&nbsp;&nbsp;{{ post.description|truncatechars:30 }}
                                         </p>
                                     </div>
                                 </div>
                                 <div>
                                     <div class="commet">
-                                        <p class="sympathy">
-                                            <bold class="user">redesigned</bold>&nbsp;&nbsp;ㅁㄴㅇㄹ
-                                        </p>
-                                        <p class="sympathy">
-                                            <bold class="user">redesigned</bold>&nbsp;&nbsp;ㅁㄴㅇㄹ
-                                        </p>
-                                        <p class="sympathy">
-                                            <bold class="user">redesigned</bold>&nbsp;&nbsp;ㅁㄴㅇㄹ
-                                        </p>
+                                        <div id="comment_obj_{{ post.id }}">
+                                            {% for comment in post.post_comment.all|slice:"0:3" %}
+                                                <p class="sympathy">
+                                                <b class="user">{{ comment.user_id.nickname }}</b>&nbsp;&nbsp;{{ comment.comment|truncatechars:30 }}
+                                                </p>
+                                            {% endfor %}
+                                        </div>
                                         <a href="/post?id={{ post.id }}">
                                             <p class="sympathy" style="color: #8E8E8E; margin-left: .2rem;">
                                                 댓글 더보기
@@ -98,13 +96,26 @@
                         <div class="comment">
                             <form class="form-inline">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="댓글 달기">
-                                    <button style="width: 70px;">게시</button>
+                                    <input id="comment-input{{ post.id }}" type="text" class="form-control" placeholder="댓글 달기">
+                                    <button id="submit" type="button" style="width: 70px;" onclick="ajaxComment({{ post.id }})">게시</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
+                <script>
+                    $(document).ready(function () {
+                        $('#comment-input').on('input change', function () {
+                            if ($(this).val().length > 0) {
+                                document.getElementById('submit').style.color = "#0095f6"
+                                $('#submit').prop('disabled', false);
+                            } else {
+                                document.getElementById('submit').style.color = "#B7E1FD"
+                                $('#submit').prop('disabled', true);
+                            }
+                        });
+                    });
+                </script>
             {% endfor %}
         </div>
         {% if page_obj.has_next %}
@@ -192,40 +203,34 @@
             }
         </script>
         <script>
-            function isElementInViewport (el) {
-                if (typeof jQuery === "function" && el instanceof jQuery) {
-                    el = el[0];
-                }
-                const rect = el.getBoundingClientRect();
-                return (
-                    rect.top >= 0 &&
-                    rect.left >= 0 &&
-                    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /* or $(window).height() */
-                    rect.right <= (window.innerWidth || document.documentElement.clientWidth) /* or $(window).width() */
-                );
-            }
-        </script>
-        <script>
-            function onVisibilityChange(el, callback) {
-                let old_visible;
-                return function () {
-                    let visible = isElementInViewport(el);
-                    if (visible !== old_visible) {
-                        old_visible = visible;
-                        if (typeof callback == 'function') {
-                            callback();
+            function ajaxComment(post_id) {
+                const comment = $(`#comment-input${post_id}`).val()
+                const submitBtn = $('#submit')
+                submitBtn.value = ""
+                submitBtn.prop('disabled', true);
+                $.ajax({
+                    type: 'POST',
+                    url:'/comment',
+                    data: {
+                        'csrfmiddlewaretoken': getCookie('csrftoken'),
+                        'post_id': post_id,
+                        'comment': comment,
+                    },
+                    success:function(res){
+                        if(res.commentRes === "success") {
+                            const comment_obj_id = `#comment_obj_${post_id}`
+                            const commentDiv = document.querySelector(comment_obj_id)
+                            const html1 = `<p class="sympathy"> <b class="user">${res.user1}</b>&nbsp;&nbsp;${res.comment1} </p>`
+                            const html2 = `<p class="sympathy"> <b class="user">${res.user2}</b>&nbsp;&nbsp;${res.comment2} </p>`
+                            const html3 = `<p class="sympathy"> <b class="user">${res.user3}</b>&nbsp;&nbsp;${res.comment3} </p>`
+                            commentDiv.innerHTML = html1 + html2 + html3
+                        } else if(res.commentRes === "fail") {
+                            alert('failed')
                         }
+                        submitBtn.prop('disabled', false);
                     }
-                }
+                })
             }
-
-            const handler = onVisibilityChange(el, function() {
-                /* Working on here*/
-            });
-
-
-            // jQuery
-            $(window).on('DOMContentLoaded load resize scroll', handler);
         </script>
     </section>
 {% endblock %}
