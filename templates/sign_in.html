@@ -4,13 +4,15 @@
 {% block content %}
     <section class="container">
         <div class="d-flex justify-content-center my-5">
-            <div class="col-3 text-center m-10 border rounded">
+            <div class="col-xs-5 border rounded">
                 <div class="col text-center m-5"></div>
-                <div class="col text-center">
-                    <a class="navbar-brand" href="">
-                        <img src="./static/image/mini_instargram_logo.png" alt="" width="250" class="d-inline-block">
+                <div class="col text-center mx-2">
+                    <a class="navbar-brand text-center" href="">
+                        <div class="text-center mx-2">
+                            <img src="./static/image/mini_instargram_logo.png" alt="" width="250" class="d-inline-block">
+                        </div>
                     </a>
-                    <h4  style="margin-top: 1.5rem;">로그인</h4>
+                    <h4>로그인</h4>
                 </div>
                 <div class="col text-center m-5"></div>
 
@@ -22,19 +24,21 @@
                                 <input aria-label="이메일" id="email" class="form-control" aria-required="true" maxlength="50" name="email" type="email" placeholder="이메일" onfocus="this.placeholder = ''" onblur="this.placeholder = '이메일'">
                             </label>
                         </div>
-                        <div id="id-place">
-
-                        </div>
                         <div id="pw-place" class="col-md-12">
                             <label class="col-8">
                                 <input aria-label="비밀번호" id="password" class="form-control" aria-required="true" name="password" type="password" placeholder="비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '비밀번호'">
                             </label>
                         </div>
-                        <div class="col text-center m-2"></div>
+                        <div>
+                            <p id="error-msg" style="color: red; font-size: 10pt"></p>
+                        </div>
                         <div class="col-md-12">
                             <button id="submit" type="button" class="btn btn-primary col-8" onclick="ajaxLogin()" disabled>로그인</button>
                         </div>
                         <div class="my-3">
+                            <div class="col text-center m-2">
+                                <a href="" hidden>인증메일 다시 보내기</a>
+                            </div>
                             <div class="col text-center m-2">
                                 <a href="#">비밀번호 찾기</a>
                             </div>
@@ -100,13 +104,13 @@
                             'password': password
                         },
                         success:function(res){
-                            if(res.msg === "success"){
+                            if(res.loginRes === "success"){
                                 location.href = "/"
-                            }
-                            else if(res.msg === "id_fail") {
-                                alert("wrong email")
-                            } else if(res.msg === "pw_fail") {
-                                alert("wrong password")
+                            } else if(res.loginRes === "fail") {
+                                document.querySelector("#error-msg").innerText = "이메일 또는 비밀번호를 확인해주세요"
+                            } else if(res.loginRes === "email_verify") {
+                                document.querySelector("#error-msg").innerText = "이메일을 인증해주세요"
+
                             }
                             $('#password').value = ""
                         }
