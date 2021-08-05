@@ -189,23 +189,25 @@ class EditPost(views.View):
 class DeletePost(views.View):
     @staticmethod
     def post(request):
-        pass
+        user_pk = request.session.get('user')
+        if not user_pk:
+            return HttpResponseNotAllowed('login')
+
+        post_id = request.POST['id']
+        post = get_object_or_404(Post, id=post_id)
+
+        confirm = request.POST['confirm']
+        if confirm == "confirm":
+            post.delete()
+            context = {'deleteRes': 'success'}
+            return HttpResponse(json.dumps(context), content_type="application/json")
+        else:
+            context = {'deleteRes': 'fail'}
+            return HttpResponse(json.dumps(context), content_type="application/json")
 
     @staticmethod
     def get(request):
-        user_pk = request.session.get('user')
-        if not user_pk:
-            return redirect('/login')
-
-        post_id = request.GET['id']
-        post = get_object_or_404(Post, id=post_id)
-
-        confirm = request.GET['confirm']
-        if confirm == "confirm":
-            post.delete()
-            return redirect('/')
-        else:
-            return redirect(f'/post?id={post_id}')
+        return HttpResponseNotAllowed('POST')
 
 
 class Login(views.View):
