@@ -1,0 +1,107 @@
+{% extends '_layout.html' %}
+
+{% block navbar %}
+    <li class="nav-item">
+        <a class="nav-link" href="/">홈</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/addpost">게시글 추가</a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{{ user.profile_pic.url }}" width="30rem" class="d-inline-block rounded-circle" alt="">
+        </a>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/mypage">프로필</a></li>
+            <li><a class="dropdown-item" href="#">설정</a></li>
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
+        </ul>
+    </li>
+{% endblock %}
+
+{% block content %}
+    <section class="container">
+        <div class="post-content content">
+            <div class="left left-margin post-img">
+                <!-- 사진 -->
+                <img src="{{ post.image.url }}" alt="">
+            </div>
+            <div class="left cont">
+                <div>
+                    <!-- 설명 -->
+                    <ul class="navbar navbar-light navbar-expand-lg navbar-light" style="margin-bottom: -.2rem;">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <img src="{{ post.author.profile_pic.url }}" style="border-radius: 20px; margin-left: -3rem;" width="30rem" class="d-inline-block" alt="">
+                                <bold class="user" style="color: black;">&nbsp;{{ post.author.nickname }}</bold>
+                            </a>
+                        </li>
+                        <li>
+                            <p style="padding-top: .6rem; text-align: center;">
+
+                            </p>
+                        </li>
+                        <li class="nav-item dropdown ms-auto" style="padding-bottom: .5rem;">
+                            <a class="nav-link" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                <i class="fas fa-caret-down" style="color: #8E8E8E;"></i>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="/editpost?id={{ post.id }}">수정</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="#">삭제</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <div>
+                        <!-- 댓글 -->
+                        <!-- 설명 -->
+                        <div class="commet" style="overflow:auto;">
+                            <a href="#">
+                                <p class="explanation" style="color: black;">
+                                    <img src="./image/profil.png" style="border-radius: 20px;" width="30rem"
+                                        class="d-inline-block" alt="">
+                                    <bold class="user" style="color: black;">&nbsp;jademon</bold>
+                            </a>
+                            &nbsp;&nbsp;오늘은 식극의 소마를 봤다</p>
+                            <a href="#">
+                                <p class="sympathy" style="color: black;">
+                                    <img src="./image/profil.png" style="border-radius: 20px;" width="30rem"
+                                        class="d-inline-block" alt="">
+                                    <bold class="user" style="color: black;">&nbsp;redesigned</bold>
+                            </a>
+                            &nbsp;&nbsp;ㅁㄴㅇㄹ</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            <p style="font-size: 9px; color: #8E8E8E; margin-top: .2rem; margin-bottom: auto;">
+                                &nbsp;&nbsp;2021년 7월 27일
+                            </p>
+                        </div>
+                        <div class="lov" style="margin: .3rem;">
+                            <a><i class="far fa-heart fa-sm"></i></a>
+                        </div>
+
+                        <div class="commen">
+                            <form class="form-inline">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="댓글 달기" />
+                                    <button style="width: 70px;">게시</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+{% endblock %}

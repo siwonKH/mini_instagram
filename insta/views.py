@@ -4,11 +4,12 @@ import random
 
 from django.http import HttpResponse
 from django.http.response import HttpResponseNotAllowed
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django import views
 from django.contrib.auth import logout
 from .models import User, Post
 from django.views.generic.list import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from .utils import get_random_unicode
 
 
@@ -18,6 +19,16 @@ class PostsView(ListView):
     context_object_name = 'posts'
     template_name = 'index.html'
     ordering = ['id']
+
+    def get_context_data(self, **kwargs):
+        context = super(PostsView, self).get_context_data(**kwargs)
+        user_pk = self.request.session.get('user')
+        if user_pk:
+            context['user_id'] = user_pk
+            context['profile_pic'] = self.request.session.get('profile_pic')
+            return context
+        else:
+            return None
 
 
 class Home(views.View):
@@ -34,7 +45,24 @@ class Home(views.View):
         return redirect('/login')
 
 
-# noinspection PyBroadException
+class PostPage(views.View):
+    @staticmethod
+    def post(request):
+        pass
+
+    @staticmethod
+    def get(request):
+        user_pk = request.session.get('user')
+        if not user_pk:
+            return redirect('/login')
+
+        post_id = request.GET['id']
+        post = get_object_or_404(Post, id=post_id)
+
+        context = {'post': post}
+        return render(request, 'post.html', context)
+
+
 class AddPost(views.View):
     @staticmethod
     def post(request):
@@ -64,22 +92,21 @@ class AddPost(views.View):
     def get(request):
         user_pk = request.session.get('user')
         if user_pk:
-            return render(request, 'add_post.html')
+            profile_pic = request.session.get('profile_pic')
+            context = {'profile_pic': profile_pic}
+            return render(request, 'add_post.html', context)
         return redirect('/login')
 
 
 class EditPost(views.View):
     @staticmethod
     def post(request):
-        try:
-            post_id = request.POST['id']
-            post = Post.objects.get(id=post_id)  # 게시글 테이블에서 정보 가져오기
-        except:
-            return redirect('/')
-
         user_pk = request.session.get('user')
         if not user_pk:
             return redirect('/login')
+
+        post_id = request.POST['id']
+        post = get_object_or_404(Post, id=post_id)  # 게시글 테이블에서 정보 가져오기
 
         if str(user_pk) != str(post.author.id):  # 수정하려는 사람과 작성자가 다르다면
             return redirect('/')
@@ -120,6 +147,28 @@ class EditPost(views.View):
         return render(request, 'edit_post.html', context)
 
 
+class DeletePost(views.View):
+    @staticmethod
+    def post(request):
+        pass
+
+    @staticmethod
+    def get(request):
+        user_pk = request.session.get('user')
+        if not user_pk:
+            return redirect('/login')
+
+        post_id = request.GET['id']
+        post = get_object_or_404(Post, id=post_id)
+
+        confirm = request.GET['confirm']
+        if confirm == "confirm":
+            post.delete()
+            return redirect('/')
+        else:
+            return redirect(f'/post?id={post_id}')
+
+
 class Login(views.View):
     @staticmethod
     def post(request):
@@ -135,6 +184,7 @@ class Login(views.View):
 
             if str(user.password) == str(hashed_password):
                 request.session['user'] = user.id  # 로그인 성공!
+                request.session['profile_pic'] = user.profile_pic.url
                 context = {'msg': "success"}
                 return HttpResponse(json.dumps(context), content_type="application/json")
 
@@ -198,6 +248,10 @@ class SignUp(views.View):
 
 
 class MyPage(views.View):
+    @staticmethod
+    def post(request):
+        pass
+
     @staticmethod
     def get(request):
         user_pk = request.session.get('user')
