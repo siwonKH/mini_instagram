@@ -306,6 +306,13 @@ class EmailVerify(views.View):
 
                 context = {'verifyRes': "success"}
                 return HttpResponse(json.dumps(context), content_type="application/json")
+            tried = request.session.get('verify_tried')
+            if tried:
+                tried = int(tried) + 1
+                if tried >= 10:
+                    logout(request)
+            else:
+                request.session['verify_tried'] = "1"
             context = {'verifyRes': "fail"}
             return HttpResponse(json.dumps(context), content_type="application/json")
 
