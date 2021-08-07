@@ -1,14 +1,22 @@
 from django.http import HttpResponse
+from .models import User
+from django.shortcuts import get_object_or_404
 import json
 import random
 
 
 def check(request):
     user_pk = request.session.get('user')
-    if not user_pk:
-        context = {'s': 'false'}
-        return HttpResponse(json.dumps(context), content_type="application/json")
-    context = {'s': 'true'}
+    if user_pk:
+        user = get_object_or_404(User, id=user_pk)
+        if user.is_verified is True:
+            context = {'login': 'true', 'verified': 'true'}
+            return HttpResponse(json.dumps(context), content_type="application/json")
+        else:
+            context = {'login': 'true', 'verified': 'false'}
+            return HttpResponse(json.dumps(context), content_type="application/json")
+
+    context = {'login': 'false'}
     return HttpResponse(json.dumps(context), content_type="application/json")
 
 
