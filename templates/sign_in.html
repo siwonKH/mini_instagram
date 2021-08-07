@@ -37,9 +37,6 @@
                         </div>
                         <div class="my-3">
                             <div class="col text-center m-2">
-                                <a href="" hidden>인증메일 다시 보내기</a>
-                            </div>
-                            <div class="col text-center m-2">
                                 <a href="#">비밀번호 찾기</a>
                             </div>
                             <div class="col text-center m-2">
@@ -108,9 +105,6 @@
                                 location.href = "/"
                             } else if(res.loginRes === "fail") {
                                 document.querySelector("#error-msg").innerText = "이메일 또는 비밀번호를 확인해주세요"
-                            } else if(res.loginRes === "email_verify") {
-                                document.querySelector("#error-msg").innerText = "이메일을 인증해주세요"
-
                             }
                             $('#password').value = ""
                         }
