@@ -1,12 +1,14 @@
 import hashlib
 import json
 
-from django.core import serializers
+from django.core.mail import EmailMessage
 from django.http import HttpResponse
-from django.http.response import HttpResponseNotAllowed
+from django.http.response import HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django import views
 from django.contrib.auth import logout
+from django.utils.crypto import get_random_string
+
 from .models import User, Post, PostLike, PostComment
 from django.views.generic.list import ListView
 from .utils import get_random_unicode
@@ -23,11 +25,12 @@ class PostsView(ListView):
         context = super(PostsView, self).get_context_data(**kwargs)
         user_pk = self.request.session.get('user')
         if user_pk:
-            context['user_id'] = user_pk
-            context['profile_pic'] = self.request.session.get('profile_pic')
-            return context
-        else:
-            return None
+            user = get_object_or_404(User, id=user_pk)
+            if user.is_verified is True:
+                context['user_id'] = user_pk
+                context['profile_pic'] = self.request.session.get('profile_pic')
+                return context
+        return None
 
 
 class Home(views.View):
@@ -247,17 +250,18 @@ class Login(views.View):
             hashed_password = hashlib.sha256(salted_password.encode()).hexdigest()  # 솔트값과 합쳐진 사용자 입력값을 해시
 
             if str(user.password) == str(hashed_password):
-
                 request.session['user'] = user.id  # 로그인 성공!
                 request.session['profile_pic'] = user.profile_pic.url
+                if user.is_verified is False:
+                    request.session['email'] = user.email
                 context = {'loginRes': "success"}
                 return HttpResponse(json.dumps(context), content_type="application/json")
 
             else:
-                context = {'loginRes': "fail"}  # 에러메시지 생성
+                context = {'loginRes': "fail"}  # 비번 틀림
                 return HttpResponse(json.dumps(context), content_type="application/json")
         else:
-            context = {'loginRes': "fail"}  # 에러메시지 생성
+            context = {'loginRes': "fail"}  # 이메일 존재 안함
             return HttpResponse(json.dumps(context), content_type="application/json")
 
     @staticmethod
@@ -269,6 +273,95 @@ class Login(views.View):
 
         # 로그인 하세요~
         return render(request, 'sign_in.html')  # 사용자에게 로그인 페이지 보여줌
+
+
+class EmailVerify(views.View):
+    @staticmethod
+    def post(request):
+        email = request.session.get('email')
+        if not email:
+            return HttpResponseBadRequest('invalid request')
+
+        user_pk = request.session.get('user')
+        if not user_pk:
+            return HttpResponseNotAllowed('login needed')
+        try:
+            input_code = request.POST['code']
+            email = None
+            name = None
+        except:
+            input_code = None
+            email = request.POST['email']
+            name = request.POST['name']
+
+        if input_code and len(input_code) == 6:
+            verify_code = request.session.get('verify_code')
+            if input_code == verify_code:
+                user = get_object_or_404(User, id=user_pk)
+                user.is_verified = True
+                user.save()
+
+                del request.session['verify_code']
+                del request.session['email']
+
+                context = {'verifyRes': "success"}
+                return HttpResponse(json.dumps(context), content_type="application/json")
+            context = {'verifyRes': "fail"}
+            return HttpResponse(json.dumps(context), content_type="application/json")
+
+        elif email and name:
+            if User.objects.filter(email=email, name=name, id=user_pk).exists():
+                verify_code = get_random_string(length=6, allowed_chars='1234567890')
+                request.session['verify_code'] = verify_code
+                spaced_code = verify_code[0:3] + ' ' + verify_code[3:6]
+                email = EmailMessage(
+                    f'[{spaced_code}] mini-instagram Verification code',
+                    f'Your code is: {verify_code}',
+                    to=[email]
+                )
+                email.send(fail_silently=False)
+
+                context = {'email_send': "success"}
+                return HttpResponse(json.dumps(context), content_type="application/json")
+            else:
+                context = {'email_send': "fail"}
+                return HttpResponse(json.dumps(context), content_type="application/json")
+        return HttpResponseBadRequest('invalid request')
+
+    @staticmethod
+    def get(request):
+        email = request.session.get('email')
+        if email:
+            if request.session.get('verify_code'):
+                return render(request, 'verify_code.html')
+            else:
+                return render(request, 'email_verify.html', {'email': email})
+
+        user_pk = request.session.get('user')
+        if user_pk:
+            return redirect('/')
+        return redirect('/login')
+
+
+class ResendEmail(views.View):
+    @staticmethod
+    def post(request):
+        try:
+            reset = request.POST['reset_verify']
+        except:
+            return HttpResponseBadRequest('')
+        user_pk = request.session.get('user')
+        email = request.session.get('email')
+        if user_pk and email:
+            if reset == "reset":
+                del request.session['verify_code']
+                context = {'resetRes': "success"}
+                return HttpResponse(json.dumps(context), content_type="application/json")
+        return HttpResponseNotAllowed
+
+    @staticmethod
+    def get(request):
+        return HttpResponseNotAllowed('post')
 
 
 class LogOut(views.View):
@@ -286,19 +379,39 @@ class LogOut(views.View):
 class SignUp(views.View):
     @staticmethod
     def post(request):
-        name = request.POST['name']
-        nickname = request.POST['nickname']
-        email = request.POST['email']
-        password = request.POST['password']
-        password_chk = request.POST['password-check']
+        try:
+            name = str(request.POST['name'])
+            nickname = str(request.POST['nickname'])
+            email = str(request.POST['email'])
+            password = str(request.POST['password'])
+            password_chk = str(request.POST['password-check'])
+        except:
+            return HttpResponseBadRequest('invalid request')
+
+        if User.objects.filter(nickname=nickname).exists():
+            return HttpResponse(json.dumps({'SignupRes': "nickname_exists"}), content_type="application/json")
+        if User.objects.filter(email=email).exists():
+            return HttpResponse(json.dumps({'SignupRes': "email_exists"}), content_type="application/json")
+        if password_chk != password:
+            return HttpResponse(json.dumps({'SignupRes': "pw_fail"}), content_type="application/json")
+
+        if not len(name) > 0:
+            return HttpResponse(json.dumps({'SignupRes': "name_short"}), content_type="application/json")
+        if not 4 < len(nickname):
+            return HttpResponse(json.dumps({'SignupRes': "nickname_short"}), content_type="application/json")
+        if not len(nickname) < 15:
+            return HttpResponse(json.dumps({'SignupRes': "nickname_long"}), content_type="application/json")
+        if not len(email) > 3:
+            return HttpResponse(json.dumps({'SignupRes': "email_short"}), content_type="application/json")
+        if not email.count('@') == 1:
+            return HttpResponse(json.dumps({'SignupRes': "invalid_email"}), content_type="application/json")
+        if not len(password) >= 4:
+            return HttpResponse(json.dumps({'SignupRes': "pw_long"}), content_type="application/json")
 
         user = User()
         user.name = name
         user.nickname = nickname
         user.email = email
-        if password_chk != password:
-            context = {'SignupRes': "pw_fail"}
-            return HttpResponse(json.dumps(context), content_type="application/json")
         salt = get_random_unicode(10)
         user.salt = salt
         salted_password = str(salt) + str(password)

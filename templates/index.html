@@ -131,8 +131,10 @@
                 type: 'GET',
                 url:'/check',
                 success:function(res){
-                    if(res.s === "false") {
+                    if(res.login === "false") {
                         location.href = "/login"
+                    } else if(res.verified === "false") {
+                        location.href = "/verify"
                     }
                 }
             })

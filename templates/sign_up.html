@@ -8,23 +8,23 @@
                 <div class="col text-center m-5"></div>
                 <div class="col text-center">
                     <a class="navbar-brand" href="#">
-                        <img src="./image/mini_instargram_logo.png" alt="" width="auto" class="d-inline-block">
+                        <img src="./static/image/mini_instargram_logo.png" alt="" width="auto" class="d-inline-block">
                     </a>
                     <h4 style="margin-top: 1.5rem;">회원가입</h4>
                 </div>
                 <div class="col text-center m-5"></div>
 
-                <form class="row login_form" method="post">
+                <form id="sign-form" class="row login_form" method="post">
                     {% csrf_token %}
                     <div class="col text-center">
                         <div class="col-md-12 form-group">
                             <label>
-                                <input style="margin-bottom: .4rem;" aria-label="성명" class="form-control" aria-required="true" maxlength="100" name="name" type="text" value="" placeholder="성명" onfocus="this.placeholder = ''" onblur="this.placeholder = '성명'">
+                                <input id="name" style="margin-bottom: .4rem;" aria-label="성명" class="form-control" aria-required="true" maxlength="100" name="name" type="text" value="" placeholder="성명" onfocus="this.placeholder = ''" onblur="this.placeholder = '성명'">
                             </label>
                         </div>
                         <div class="col-md-12 form-group">
                             <label>
-                                <input style="margin-bottom: .4rem;" aria-label="닉네임" class="form-control" aria-required="true" maxlength="15" name="nickname" type="text" value="" placeholder="닉네임" onfocus="this.placeholder = ''" onblur="this.placeholder = '닉네임'">
+                                <input id="nickname" style="margin-bottom: .4rem;" aria-label="닉네임" class="form-control" aria-required="true" maxlength="15" name="nickname" type="text" value="" placeholder="닉네임" onfocus="this.placeholder = ''" onblur="this.placeholder = '닉네임'">
                             </label>
                         </div>
                         <div class="col-md-12 form-group">
@@ -34,32 +34,121 @@
                         </div>
                         <div class="col-md-12 form-group">
                             <label style="border-top: 1px solid #DBDBDB;">
-                                <input style="margin-bottom: .4rem; margin-top: .8rem;" aria-label="비밀번호" class="form-control" aria-required="true" name="password" type="password" value="" placeholder="비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '비밀번호'">
+                                <input id="password" style="margin-bottom: .4rem; margin-top: .8rem;" aria-label="비밀번호" class="form-control" aria-required="true" name="password" type="password" value="" placeholder="비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '비밀번호'">
                             </label>
                         </div>
                         <div class="col-md-12 form-group">
                             <label>
-                                <input style="margin-bottom: .4rem;" aria-label="비밀번호 확인" class="form-control" aria-required="true" name="password-check" type="password" value="" placeholder="비밀번호 확인" onfocus="this.placeholder = ''" onblur="this.placeholder = '비밀번호 확인'">
+                                <input id="password-check" style="margin-bottom: .4rem;" aria-label="비밀번호 확인" class="form-control" aria-required="true" name="password-check" type="password" value="" placeholder="비밀번호 확인" onfocus="this.placeholder = ''" onblur="this.placeholder = '비밀번호 확인'">
                             </label>
                         </div>
-                        <div class="col text-center m-2"></div>
-                        <div class="col-md-12 form-group ">
-                            <button id="submit" style="margin-top: .5rem; width: auto; min-width: 12rem; margin-bottom: 2rem;" type="submit" value="submit" class="btn btn-primary" disabled>가입하기</button>
+                        <div>
+                            <p id="error-msg" style="color: red; font-size: 10pt"></p>
                         </div>
-                    <div class="col  m-5"></div>
+                        <div class="col-md-12 form-group ">
+                            <button id="submit" style="margin-top: .5rem; width: auto; min-width: 12rem; margin-bottom: 2rem;" type="button" value="submit" class="btn btn-primary" onclick="ajaxSign()" disabled>가입하기</button>
+                        </div>
+                        <div class="col  m-5"></div>
+                    </div>
                 </form>
             </div>
         </div>
         <script>
             $(document).ready(function () {
+                $('#name').on('input change', function () {
+                    handleInputChange()
+                })
+                $('#nickname').on('input change', function () {
+                    handleInputChange()
+                })
                 $('#email').on('input change', function () {
-                    if ($(this).val().length > 3) {
-                        $('#submit').prop('disabled', false);
-                    } else {
-                        $('#submit').prop('disabled', true);
+                    handleInputChange()
+                })
+                $('#password').on('input change', function () {
+                    handleInputChange()
+                })
+                $('#password-check').on('input change', function () {
+                    handleInputChange()
+                })
+            })
+        </script>
+        <script>
+            function handleInputChange() {
+                const err_msg =  document.querySelector("#error-msg")
+                $('#submit').prop('disabled', true)
+                if (!($('#name').val().length > 0)) {
+                    err_msg.innerText = "이름을 입력해주세요"
+                } else if (!($('#nickname').val().length >= 4)) {
+                    err_msg.innerText = "닉네임을 4자리 이상 입력해주세요"
+                } else if (!($('#nickname').val().length <= 15)) {
+                    err_msg.innerText = "닉네임을 15자리까지 입력해주세요"
+                } else if (!($('#email').val().length > 0)) {
+                    err_msg.innerText = "이메일을 입력해주세요"
+                } else if (!($('#password').val().length >= 4)) {
+                    err_msg.innerText = "비밀번호를 4자리 이상 입력해주세요"
+                } else if (!($('#password-check').val().length >= 4)) {
+                    err_msg.innerText = "비밀번호를 한번 더 입력해주세요"
+                } else if (!($('#password').val() === $('#password-check').val())) {
+                    err_msg.innerText = "비밀번호가 다릅니다"
+                } else {
+                    err_msg.innerText = ""
+                    $('#submit').prop('disabled', false)
+                }
+            }
+        </script>
+        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
+        <script>
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
                     }
-                });
-            });
+                }
+                return cookieValue;
+            }
+        </script>
+        <script>
+            function ajaxSign() {
+                const submitBtn = $('#submit')
+                submitBtn.prop('disabled', true);
+
+                const name = $('#name').val()
+                const nickname = $('#nickname').val()
+                const email = $('#email').val()
+                const password = $('#password').val()
+                const password_check = $('#password-check').val()
+                if(email.length > 3 && password.length > 0) {
+                    $.ajax({
+                        type: 'POST',
+                        url:'/signup',
+                        data: {
+                            'csrfmiddlewaretoken': getCookie('csrftoken'),
+                            'name': name,
+                            'nickname': nickname,
+                            'email': email,
+                            'password': password,
+                            'password-check': password_check,
+                        },
+                        success:function(res){
+                            if(res.SignupRes === "success"){
+                                location.href = "/login"
+                            } else if(res.SignupRes === "nickname_exists") {
+                                document.querySelector("#error-msg").innerText = "이미 존재하는 닉네임 입니다"
+                            } else if(res.SignupRes === "email_exists") {
+                                document.querySelector("#error-msg").innerText = "이미 존재하는 이메일 입니다"
+                            }
+                            $('#password').value = ""
+                        }
+                    })
+                }
+                submitBtn.prop('disabled', false);
+            }
         </script>
     </section>
 {% endblock %}

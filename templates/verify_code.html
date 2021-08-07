@@ -1,0 +1,119 @@
+{% extends '_layout.html' %}
+
+{% block content %}
+    <section class="container">
+        <div class="content content1">
+            <div class="col text-center m-20">
+                <div class="col text-center m-5"></div>
+                <div class="col text-center">
+                    <a class="navbar-brand" href="#">
+                        <img src="./static/image/mini_instargram_logo.png" alt="" width="auto" class="d-inline-block">
+                    </a>
+                    <h4 style="margin-top: 1.5rem;">이메일 인증 완료하기</h4>
+                </div>
+                <div class="col text-center m-5"></div>
+                <h6>인증 번호 6자리를 입력해주세요</h6>
+
+                <form class="row login_form" method="post">
+                    {% csrf_token %}
+                    <div class="col text-center">
+                        <div class="col-md-12 form-group">
+                            <label>
+                                <input id="code" style="margin-bottom: .4rem;" aria-label="인증번호" class="form-control"
+                                    aria-required="true" maxlength="50" name="code" type="text" value=""
+                                    placeholder="인증번호" onfocus="this.placeholder = ''"
+                                    onblur="this.placeholder = '인증번호'">
+                            </label>
+                        </div>
+                        <div>
+                            <p id="error-msg" style="color: red; font-size: 10pt"></p>
+                        </div>
+                        <div class="col-md-12 form-group ">
+                            <button id="submit" style="margin-top: .5rem; width: auto; min-width: 12rem; margin-bottom: 2rem;"
+                                type="button" value="submit" class="btn btn-primary" onclick="ajaxVerify()" disabled>인증하기</button>
+                        </div>
+                        <div class="col text-center m-2"></div>
+                        <div class="col-md-12 form-group ">
+                            <div class="col text-center m-2">
+                                <a href="#" onclick="ajaxResend()">인증번호를 받지 못하셨나요?</a>
+                            </div>
+                        </div>
+                        <div class="col  m-5"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script>
+            $(document).ready(function () {
+                $('#code').on('input change', function () {
+                    document.querySelector("#error-msg").innerText = ""
+                    if ($(this).val().length > 3) {
+                        $('#submit').prop('disabled', false);
+                    } else {
+                        $('#submit').prop('disabled', true);
+                    }
+                });
+            });
+        </script>
+        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
+        <script>
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        </script>
+        <script>
+            function ajaxVerify() {
+                const submitBtn = $('#submit')
+                submitBtn.prop('disabled', true);
+                const code = $('#code').val()
+                $.ajax({
+                    type: 'POST',
+                    url:'/verify',
+                    data: {
+                        'csrfmiddlewaretoken': getCookie('csrftoken'),
+                        'code': code,
+                    },
+                    success:function(res){
+                        if(res.verifyRes === "success") {
+                            location.href = "/"
+                        } else if(res.verifyRes === "fail") {
+                            document.querySelector("#error-msg").innerText = "인증 번호가 맞지 않습니다"
+                        }
+                        submitBtn.prop('disabled', false);
+                    }
+                })
+            }
+        </script>
+        <script>
+            function ajaxResend() {
+                const submitBtn = $('#submit')
+                submitBtn.prop('disabled', true);
+                $.ajax({
+                    type: 'POST',
+                    url:'/resendemail',
+                    data: {
+                        'csrfmiddlewaretoken': getCookie('csrftoken'),
+                        'reset_verify': "reset",
+                    },
+                    success:function(res){
+                        if(res.resetRes === "success") {
+                            location.href = "/verify"
+                        }
+                        submitBtn.prop('disabled', false);
+                    }
+                })
+            }
+        </script>
+    </section>
+{% endblock %}

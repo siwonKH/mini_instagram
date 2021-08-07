@@ -1,5 +1,27 @@
 {% extends '_layout.html' %}
 
+{% block navbar %}
+    <li class="nav-item">
+        <a class="nav-link" href="/">홈</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/addpost">게시글 추가</a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="./static/image/profil.png" width="30rem" class="d-inline-block rounded-circle" alt="">
+        </a>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/mypage">프로필</a></li>
+            <li><a class="dropdown-item" href="#">설정</a></li>
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
+        </ul>
+    </li>
+{% endblock %}
+
 {% block content %}
     <section class="container">
         <div class="content content1">
@@ -7,13 +29,14 @@
                 <div class="col text-center m-5"></div>
                 <div class="col text-center">
                     <a class="navbar-brand" href="#">
-                        <img src="./image/mini_instargram_logo.png" alt="" width="auto" class="d-inline-block">
+                        <img src="./static/image/mini_instargram_logo.png" alt="" width="auto" class="d-inline-block">
                     </a>
-                    <h4 style="margin-top: 1.5rem;">비밀번호 찾기</h4>
+                    <h4 style="margin-top: 1.5rem;">이메일 인증하기</h4>
                 </div>
                 <div class="col text-center m-5"></div>
 
                 <form class="row login_form" method="post">
+                    {% csrf_token %}
                     <div class="col text-center">
                         <div class="col-md-12 form-group">
                             <label>
@@ -25,14 +48,15 @@
                         <div class="col-md-12 form-group">
                             <label>
                                 <input id="email" style="margin-bottom: .8rem;" aria-label="이메일" class="form-control" aria-required="true" name="email"
-                                    type="email" value="" placeholder="이메일" onfocus="this.placeholder = ''"
+                                    type="email" value="{{ email }}" placeholder="이메일" onfocus="this.placeholder = ''"
                                     onblur="this.placeholder = '이메일'">
                             </label>
                         </div>
-                        <div class="col text-center m-2"></div>
+                        <div>
+                            <p id="error-msg" style="color: red; font-size: 10pt"></p>
+                        </div>
                         <div class="col-md-12 form-group ">
-                            <button style="margin-top: .5rem; width: auto; min-width: 12rem; margin-bottom: 2rem;"
-                                type="submit" value="submit" class="btn btn-primary" disabled>인증번호 보내기</button>
+                            <button id="submit" style="margin-top: .5rem; width: auto; min-width: 12rem; margin-bottom: 2rem;" type="button" value="submit" class="btn btn-primary" onclick="ajaxEmail()" disabled>인증번호 보내기</button>
                         </div>
                         <div class="col  m-5"></div>
                     </div>
@@ -49,6 +73,8 @@
                     }
                 });
             });
+        </script>
+        <script>
             $(document).ready(function () {
                 $('#email').on('input change', function () {
                     if ($(this).val().length > 3 && $('#name').val().length > 0) {
@@ -58,6 +84,48 @@
                     }
                 });
             });
+        </script>
+        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
+        <script>
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        </script>
+        <script>
+            function ajaxEmail() {
+                const submitBtn = $('#submit')
+                submitBtn.prop('disabled', true);
+                const name = $('#name').val()
+                const email = $('#email').val()
+                $.ajax({
+                    type: 'POST',
+                    url:'/verify',
+                    data: {
+                        'csrfmiddlewaretoken': getCookie('csrftoken'),
+                        'name': name,
+                        'email': email,
+                    },
+                    success:function(res){
+                        if(res.email_send === "success") {
+                            location.href = "/verify"
+                        } else if(res.email_send === "fail") {
+                            document.querySelector("#error-msg").innerText = "이름 또는 이메일을 확인해주세요"
+                        }
+                        submitBtn.prop('disabled', false);
+                    }
+                })
+            }
         </script>
     </section>
 {% endblock %}
