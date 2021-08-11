@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_FILE_DIRECTORY = r'C:\django_key\secret.txt'
+SECRET_FILE_DIRECTORY = r'C:/django_key/secret.txt'
 
 with open(SECRET_FILE_DIRECTORY, encoding='utf-8') as f:
     secret = f.read()
@@ -132,7 +132,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, r'insta\media')
+MEDIA_ROOT = os.path.join(BASE_DIR, r'insta/media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
