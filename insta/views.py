@@ -1,9 +1,11 @@
 import hashlib
 import json
+import re
 
 from django.core.mail import EmailMessage
 from django.http import HttpResponse
 from django.http.response import HttpResponseNotAllowed, HttpResponseBadRequest
+from django.views.generic.detail import DetailView
 from django.shortcuts import render, redirect, get_object_or_404
 from django import views
 from django.contrib.auth import logout
@@ -19,7 +21,7 @@ class PostsView(ListView):
     paginate_by = 1
     context_object_name = 'posts'
     template_name = 'index.html'
-    ordering = ['id']
+    ordering = ['-id']
 
     def get_context_data(self, **kwargs):
         context = super(PostsView, self).get_context_data(**kwargs)
@@ -29,6 +31,32 @@ class PostsView(ListView):
             if user.is_verified is True:
                 context['user_id'] = user_pk
                 context['profile_pic'] = self.request.session.get('profile_pic')
+                return context
+        return None
+
+
+class UserDetailView(DetailView):
+    model = User
+    slug_field = "nickname"
+    slug_url_kwarg = "nickname"
+    template_name = 'mypage.html'
+
+    def get_object(self, **kwargs):
+        user = get_object_or_404(User, nickname=self.kwargs.get("nickname"))
+
+        user_pk = self.request.session.get('user')
+        if user_pk:
+            return user
+        else:
+            return None
+
+    def get_context_data(self, **kwargs):
+        context = super(UserDetailView, self).get_context_data(**kwargs)
+        user_pk = self.request.session.get('user')
+        if user_pk:
+            user = get_object_or_404(User, id=user_pk)
+            if user.is_verified is True:
+                context['user_id'] = user_pk
                 return context
         return None
 
@@ -83,6 +111,7 @@ class AddPost(views.View):
         description = request.POST['desc']
         try:
             image = request.FILES['img']
+
         except:
             return redirect('/addpost')
 
@@ -307,7 +336,7 @@ class EmailVerify(views.View):
                 context = {'verifyRes': "success"}
                 return HttpResponse(json.dumps(context), content_type="application/json")
             tried = request.session.get('verify_tried')
-            if tried:
+            if tried:  # 10번 시도하면 로그아웃으로 세션 초기화
                 tried = int(tried) + 1
                 if tried >= 10:
                     logout(request)
@@ -410,10 +439,15 @@ class SignUp(views.View):
             return HttpResponse(json.dumps({'SignupRes': "nickname_long"}), content_type="application/json")
         if not len(email) > 3:
             return HttpResponse(json.dumps({'SignupRes': "email_short"}), content_type="application/json")
-        if not email.count('@') == 1:
-            return HttpResponse(json.dumps({'SignupRes': "invalid_email"}), content_type="application/json")
         if not len(password) >= 4:
             return HttpResponse(json.dumps({'SignupRes': "pw_long"}), content_type="application/json")
+
+        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        if not re.fullmatch(regex, email):
+            return HttpResponse(json.dumps({'SignupRes': "invalid_email"}), content_type="application/json")
+        regex = r'^([a-z0-9_](?:(?:[a-z0-9_]|(?:\.(?!\.))){0,13}(?:[a-z0-9_]))?)$'
+        if not re.fullmatch(regex, nickname):
+            return HttpResponse(json.dumps({'SignupRes': "invalid_nickname"}), content_type="application/json")
 
         user = User()
         user.name = name
