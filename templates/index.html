@@ -32,7 +32,7 @@
                             <div>
                                 <ul class="navbar navbar-light navbar-expand-lg navbar-light" style="margin-top: -1rem; margin-bottom: -.2rem;">
                                     <li class="nav-item">
-                                        <a class="nav-link" href="#">
+                                        <a class="nav-link" href="/{{ post.author.nickname }}">
                                             <img src="{{ post.author.profile_pic.url }}" style="border-radius: 20px; margin-left: -3rem;" width="30rem" class="d-inline-block" alt="">
                                             <bold class="user" style="color: black;">&nbsp;{{ post.author.nickname }}</bold>
                                         </a>
@@ -42,13 +42,13 @@
                                     </li>
                                     {% if user_id == post.author.id %}
                                     <li class="nav-item dropdown ms-auto" style="padding-bottom: .5rem;">
-                                        <a class="nav-link" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <a class="nav-link" href="" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fas fa-caret-down" style="color: #8E8E8E;"></i>
                                         </a>
                                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                             <li><a class="dropdown-item" href="/editpost?id={{ post.id }}">수정</a></li>
                                             <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item" href="#" onclick="confirmDelete({{ post.id }})">삭제</a></li>
+                                            <li><a class="dropdown-item" href="" onclick="confirmDelete({{ post.id }})">삭제</a></li>
                                         </ul>
                                     </li>
                                     {% endif %}
@@ -71,11 +71,11 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <div class="commet">
+                                    <div class="commet" style="height: auto;">
                                         <div id="comment_obj_{{ post.id }}">
                                             {% for comment in post.post_comment.all|slice:"0:3" %}
                                                 <p class="sympathy">
-                                                <b class="user">{{ comment.user_id.nickname }}</b>&nbsp;&nbsp;{{ comment.comment|truncatechars:30 }}
+                                                    <b class="user">{{ comment.user_id.nickname }}</b>&nbsp;&nbsp;{{ comment.comment|truncatechars:30 }}
                                                 </p>
                                             {% endfor %}
                                         </div>
@@ -96,26 +96,13 @@
                         <div class="comment">
                             <form class="form-inline">
                                 <div class="input-group">
-                                    <input id="comment-input{{ post.id }}" type="text" class="form-control" placeholder="댓글 달기">
-                                    <button id="submit" type="button" style="width: 70px;" onclick="ajaxComment({{ post.id }})">게시</button>
+                                    <input id="comment-input-{{ post.id }}" type="text" class="form-control" placeholder="댓글 달기" onkeyup="changeCol({{ post.id }})">
+                                    <button id="submit-{{ post.id }}" type="button" style="width: 70px;" onclick="ajaxComment({{ post.id }})">게시</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
-                <script>
-                    $(document).ready(function () {
-                        $('#comment-input').on('input change', function () {
-                            if ($(this).val().length > 0) {
-                                document.getElementById('submit').style.color = "#0095f6"
-                                $('#submit').prop('disabled', false);
-                            } else {
-                                document.getElementById('submit').style.color = "#B7E1FD"
-                                $('#submit').prop('disabled', true);
-                            }
-                        });
-                    });
-                </script>
             {% endfor %}
         </div>
         {% if page_obj.has_next %}
@@ -206,9 +193,10 @@
         </script>
         <script>
             function ajaxComment(post_id) {
-                const comment = $(`#comment-input${post_id}`).val()
+                const comment_el = $(`#comment-input${post_id}`)
+                const comment = comment_el.val()
                 const submitBtn = $('#submit')
-                submitBtn.value = ""
+                comment_el.value = ""
                 submitBtn.prop('disabled', true);
                 $.ajax({
                     type: 'POST',
@@ -232,6 +220,17 @@
                         submitBtn.prop('disabled', false);
                     }
                 })
+            }
+        </script>
+        <script>
+            function changeCol(id) {
+                if ($(`#comment-input-${String(id)}`).val().length > 0) {
+                    document.getElementById(`submit-${String(id)}`).style.color = "#0095f6"
+                    $(`#submit-${String(id)}`).prop('disabled', false);
+                } else {
+                    document.getElementById(`submit-${String(id)}`).style.color = "#B7E1FD"
+                    $(`#submit-${String(id)}`).prop('disabled', true);
+                }
             }
         </script>
     </section>
