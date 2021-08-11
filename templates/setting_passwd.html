@@ -1,1 +1,76 @@
-<!-- 비밀번호 변경 -->
+{% extends '_layout.html' %}
+
+{% block navbar %}
+    <li class="nav-item">
+        <a class="nav-link" href="/">홈</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/addpost">게시글 추가</a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{{ profile_pic }}" width="30rem" class="d-inline-block rounded-circle" alt="">
+        </a>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/mypage">프로필</a></li>
+            <li><a class="dropdown-item" href="#">설정</a></li>
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
+        </ul>
+    </li>
+{% endblock %}
+
+{% block content %}
+    <section class="container">
+        <div class="content content1">
+            <div class="col text-center m-20">
+                <div class="col text-center m-5"></div>
+                <div class="col text-center">
+                    <a class="navbar-brand" href="#">
+                        <img src="/static/image/mini_instargram_logo.png" alt="" width="auto" class="d-inline-block">
+                    </a>
+                    <h4 style="margin-top: 1.5rem;">비밀번호 변경</h4>
+                </div>
+                <div class="col text-center m-5"></div>
+
+                <form class="row login_form" method="post">
+                    <div class="col text-center">
+                        <div class="col-md-12 form-group">
+                            <label>
+                                <input id="current-password" style="margin-bottom: .4rem;" aria-label="현재 비밀번호" class="form-control" aria-required="true" name="password" type="password" value="" placeholder="현재 비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '현재 비밀번호'">
+                            </label>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label>
+                                <input id="new-password" style="margin-bottom: .4rem;" aria-label="새 비밀번호" class="form-control" aria-required="true" name="password" type="password" value="" placeholder="새 비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '새 비밀번호'">
+                            </label>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label>
+                                <input id="new-password-check" style="margin-bottom: .4rem;" aria-label="새 비밀번호 확인" class="form-control" aria-required="true" name="password-check" type="password" value="" placeholder="새 비밀번호 확인" onfocus="this.placeholder = ''" onblur="this.placeholder = '새 비밀번호 확인'">
+                            </label>
+                        </div>
+                        <div class="col text-center m-2"></div>
+                        <div class="col-md-12 form-group ">
+                            <button id="submit" style="margin-top: .5rem; width: auto; min-width: 12rem; margin-bottom: 2rem;" type="button" class="btn btn-primary" disabled>확인</button>
+                        </div>
+                        <div class="col  m-5"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script>
+            $(document).ready(function () {
+                $('#id').on('input change', function () {
+                    if ($(this).val().length > 3) {
+                        $('#submit').prop('disabled', false);
+                    } else {
+                        $('#submit').prop('disabled', true);
+                    }
+                });
+            });
+        </script>
+    </section>
+{% endblock %}
