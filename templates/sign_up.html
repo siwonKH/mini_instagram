@@ -8,7 +8,7 @@
                 <div class="col text-center m-5"></div>
                 <div class="col text-center">
                     <a class="navbar-brand" href="#">
-                        <img src="./static/image/mini_instargram_logo.png" alt="" width="auto" class="d-inline-block">
+                        <img src="/static/image/mini_instargram_logo.png" alt="" width="auto" class="d-inline-block">
                     </a>
                     <h4 style="margin-top: 1.5rem;">회원가입</h4>
                 </div>
@@ -82,6 +82,8 @@
                     err_msg.innerText = "닉네임을 4자리 이상 입력해주세요"
                 } else if (!($('#nickname').val().length <= 15)) {
                     err_msg.innerText = "닉네임을 15자리까지 입력해주세요"
+                } else if ($('#nickname').val().startsWith(".")) {
+                    err_msg.innerText = "닉네임은 '.' 으로 시작할 수 없습니다"
                 } else if (!($('#email').val().length > 0)) {
                     err_msg.innerText = "이메일을 입력해주세요"
                 } else if (!($('#password').val().length >= 4)) {
@@ -142,6 +144,8 @@
                                 document.querySelector("#error-msg").innerText = "이미 존재하는 닉네임 입니다"
                             } else if(res.SignupRes === "email_exists") {
                                 document.querySelector("#error-msg").innerText = "이미 존재하는 이메일 입니다"
+                            } else if(res.SignupRes === "invalid_nickname") {
+                                document.querySelector("#error-msg").innerText = "닉네임은 영문 소문자, 숫자, '.', '_' 만 가능합니다"
                             }
                             $('#password').value = ""
                         }
