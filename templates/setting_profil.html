@@ -1,1 +1,125 @@
-<!-- 프로필 수정 -->
+{% extends '_layout.html' %}
+
+{% block navbar %}
+    <li class="nav-item">
+        <a class="nav-link" href="/">홈</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" href="/addpost">게시글 추가</a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{{ profile_pic }}" width="30rem" class="d-inline-block rounded-circle" alt="">
+        </a>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/mypage">프로필</a></li>
+            <li><a class="dropdown-item" href="/setting">설정</a></li>
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
+        </ul>
+    </li>
+{% endblock %}
+
+{% block content %}
+    <section class="container">
+        <div class="post-content content">
+            <div class="row"  style="float: left;">
+                <div class="col navbar-light" style="font-size: 12px;">
+                    <ul class="nav flex-column navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/mypage">프로필</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/changepw">비밀번호 변경</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" style="color: red;" href="/logout">로그아웃</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col text-center">
+                <form class="row login_form" method="post">
+                    <h4 class="my-5" style="margin-top: 1.5rem;">프로필 편집</h4>
+                    <div class="col text-center">
+                        <div class="col-md-12 form-group mini-first">
+                            <label for="" class="mini" style="margin-right: 1rem;">성명&nbsp;&nbsp;&nbsp;</label>
+                            <label>
+                                <input id="name" style="margin-bottom: .8rem;" aria-label="성명" class="form-control setting-form"
+                                    aria-required="true" name="name" type="text" value="{{ user.name }}" placeholder="성명"
+                                    onfocus="this.placeholder = ''" onblur="this.placeholder = '성명'">
+                            </label>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label for="" class="mini" style="margin-right: 1rem;">닉네임</label>
+                            <label>
+                                <input id="nickname" style="margin-bottom: .8rem;" aria-label="닉네임" class="form-control setting-form"
+                                    aria-required="true" maxlength="50" name="username" type="text" value="{{ user.nickname }}"
+                                    placeholder="닉네임" onfocus="this.placeholder = ''" onblur="this.placeholder = '닉네임'">
+                            </label>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label for="" class="mini" style="margin-right: 1rem;">이메일</label>
+                            <label>
+                                <input id="email" style="margin-bottom: .8rem;" aria-label="이메일" class="form-control setting-form"
+                                    aria-required="true" name="email" type="email" value="{{ user.email }}" placeholder="이메일"
+                                    onfocus="this.placeholder = ''" onblur="this.placeholder = '이메일'">
+                            </label>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label for="" class="setleft mini" style="margin-right: 1rem;">소개&nbsp;&nbsp;&nbsp;</label>
+                            <label>
+                                <textarea id="desc" class="form-control setting-form" style="margin-bottom: .8rem; resize: none;" rows="4" cols="22" placeholder="설명">{{ user.introduce }}</textarea>
+                            </label>
+                        </div>
+                        <div>
+                            <p id="error-msg" style="color: red; font-size: 10pt"></p>
+                        </div>
+                        <div class="col-md-12 form-group ">
+                            <button id="submit" style="margin-top: .5rem; width: auto; min-width: 12rem; margin-bottom: 2rem;" type="submit" class="btn btn-primary" disabled>수정하기</button>
+                        </div>
+                        <div class="col m-5"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script>
+            $(document).ready(function () {
+                $('#name').on('input change', function () {
+                    handleInputChange()
+                })
+                $('#nickname').on('input change', function () {
+                    handleInputChange()
+                })
+                $('#email').on('input change', function () {
+                    handleInputChange()
+                })
+                $('#desc').on('input change', function () {
+                    handleInputChange()
+                })
+            })
+        </script>
+        <script>
+            function handleInputChange() {
+                const err_msg =  document.querySelector("#error-msg")
+                $('#submit').prop('disabled', true)
+                if (!($('#name').val().length >= 1)) {
+                    err_msg.innerText = "성명을 입력해주세요"
+                } else if (!($('#nickname').val().length >= 4)) {
+                    err_msg.innerText = "닉네임을 4자리 이상 입력해주세요"
+                } else if (!($('#nickname').val().length <= 15)) {
+                    err_msg.innerText = "닉네임을 15자리까지 입력해주세요"
+                } else if ($('#nickname').val().startsWith(".")) {
+                    err_msg.innerText = "닉네임은 '.' 으로 시작할 수 없습니다"
+                } else if (!($('#email').val().length > 0)) {
+                    err_msg.innerText = "이메일을 입력해주세요"
+                } else {
+                    err_msg.innerText = ""
+                    $('#submit').prop('disabled', false)
+                }
+            }
+        </script>
+    </section>
+{% endblock %}
