@@ -13,7 +13,7 @@
         </a>
         <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="/mypage">프로필</a></li>
-            <li><a class="dropdown-item" href="#">설정</a></li>
+            <li><a class="dropdown-item" href="/setting">설정</a></li>
             <li>
                 <hr class="dropdown-divider">
             </li>
@@ -24,24 +24,32 @@
 
 {% block content %}
     <section class="container">
-        <div class="content content1">
-            <div class="col text-center m-20">
-                <div class="col text-center m-5"></div>
-                <div class="col text-center">
-                    <a class="navbar-brand" href="#">
-                        <img src="/static/image/mini_instargram_logo.png" alt="" width="auto" class="d-inline-block">
-                    </a>
-                    <h4 style="margin-top: 1.5rem;">비밀번호 변경</h4>
+        <div class="post-content content">
+            <div class="row"  style="float: left;">
+                <div class="col navbar-light" style="font-size: 12px;">
+                    <ul class="nav flex-column navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/setting">프로필</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/changepw">비밀번호 변경</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" style="color: red;" href="/logout">로그아웃</a>
+                        </li>
+                    </ul>
                 </div>
-                <div class="col text-center m-5"></div>
-
+            </div>
+            <div class="col text-center">
                 <form class="row login_form" method="post">
+                    <h4 class="my-5" style="margin-top: 1.5rem;">비밀번호 변경</h4>
                     <div class="col text-center">
                         <div class="col-md-12 form-group">
                             <label>
                                 <input id="current-password" style="margin-bottom: .4rem;" aria-label="현재 비밀번호" class="form-control" aria-required="true" name="password" type="password" value="" placeholder="현재 비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '현재 비밀번호'">
                             </label>
                         </div>
+                        <div class="my-2"></div>
                         <div class="col-md-12 form-group">
                             <label>
                                 <input id="new-password" style="margin-bottom: .4rem;" aria-label="새 비밀번호" class="form-control" aria-required="true" name="password" type="password" value="" placeholder="새 비밀번호" onfocus="this.placeholder = ''" onblur="this.placeholder = '새 비밀번호'">
@@ -52,25 +60,96 @@
                                 <input id="new-password-check" style="margin-bottom: .4rem;" aria-label="새 비밀번호 확인" class="form-control" aria-required="true" name="password-check" type="password" value="" placeholder="새 비밀번호 확인" onfocus="this.placeholder = ''" onblur="this.placeholder = '새 비밀번호 확인'">
                             </label>
                         </div>
-                        <div class="col text-center m-2"></div>
-                        <div class="col-md-12 form-group ">
-                            <button id="submit" style="margin-top: .5rem; width: auto; min-width: 12rem; margin-bottom: 2rem;" type="button" class="btn btn-primary" disabled>확인</button>
+                        <div>
+                            <p id="error-msg" style="color: red; font-size: 10pt"></p>
                         </div>
-                        <div class="col  m-5"></div>
+                        <div class="col-md-12 form-group">
+                            <button id="submit" style="margin-top: .5rem; width: auto; min-width: 12rem; margin-bottom: 2rem;" type="button" class="btn btn-primary" onclick="ajaxChangePw()" disabled>확인</button>
+                        </div>
+                        <div class="col m-5"></div>
                     </div>
                 </form>
             </div>
         </div>
-        <script>
+         <script>
             $(document).ready(function () {
-                $('#id').on('input change', function () {
-                    if ($(this).val().length > 3) {
-                        $('#submit').prop('disabled', false);
-                    } else {
-                        $('#submit').prop('disabled', true);
+                $('#current-password').on('input change', function () {
+                    handleInputChange()
+                })
+                $('#new-password').on('input change', function () {
+                    handleInputChange()
+                })
+                $('#new-password-check').on('input change', function () {
+                    handleInputChange()
+                })
+            })
+        </script>
+        <script>
+            function handleInputChange() {
+                const err_msg =  document.querySelector("#error-msg")
+                $('#submit').prop('disabled', true)
+                if ($('#current-password').val().length < 1 && $('#new-password').val().length < 1 && $('#new-password-check').val().length < 1) {
+                    err_msg.innerText = ""
+                } else if (!($('#current-password').val().length >= 4)) {
+                    err_msg.innerText = "현재 비밀번호를 입력해주세요"
+                } else if (!($('#new-password').val().length >= 4)) {
+                    err_msg.innerText = "새로운 비밀번호를 입력해주세요"
+                } else if (!($('#new-password-check').val().length >= 4)) {
+                    err_msg.innerText = "새로운 비밀번호를 한번 더 입력해주세요"
+                } else if (!($('#new-password-check').val().length >= $('#new-password').val().length)) {
+                    err_msg.innerText = "새로운 비밀번호를 한번 더 입력해주세요"
+                } else if (!($('#new-password-check').val() === $('#new-password').val())) {
+                    err_msg.innerText = "새로운 비밀번호가 다릅니다"
+                } else {
+                    err_msg.innerText = ""
+                    $('#submit').prop('disabled', false)
+                }
+            }
+        </script>
+        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
+        <script>
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
                     }
-                });
-            });
+                }
+                return cookieValue;
+            }
+        </script>
+        <script>
+            function ajaxChangePw() {
+                const submitBtn = $('#submit')
+                submitBtn.prop('disabled', true);
+
+                const password = $('#current-password').val()
+                const new_password = $('#new-password').val()
+                const new_password_check = $('#new-password-check').val()
+                $.ajax({
+                    type: 'POST',
+                    url:'/changepw',
+                    data: {
+                        'csrfmiddlewaretoken': getCookie('csrftoken'),
+                        'password': password,
+                        'new-password': new_password,
+                        'new-password-check': new_password_check,
+                    },
+                    success:function(res){
+                        if(res.changepwRes === "success"){
+                            location.href = "/mypage"
+                        } else if(res.changepwRes === "fail") {
+                            document.querySelector("#error-msg").innerText = "현재 비밀번호가 맞지 않습니다"
+                        }
+                    }
+                })
+                submitBtn.prop('disabled', false);
+            }
         </script>
     </section>
 {% endblock %}
