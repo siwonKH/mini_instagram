@@ -1,5 +1,27 @@
 {% extends '_layout.html' %}
 
+{% block navbar %}
+    <li class="nav-item">
+        <a class="nav-link" href="/">홈</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/addpost">게시글 추가</a>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{{ profile_pic }}" width="30rem" class="d-inline-block rounded-circle" alt="">
+        </a>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/mypage">프로필</a></li>
+            <li><a class="dropdown-item" href="/setting">설정</a></li>
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="/logout">로그아웃</a></li>
+        </ul>
+    </li>
+{% endblock %}
+
 {% block content %}
     <section class="container">
         <div class="content post-content">
