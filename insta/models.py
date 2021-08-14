@@ -14,7 +14,7 @@ class User(models.Model):
     salt = models.TextField(max_length=10, null=False)
     is_admin = models.SmallIntegerField(null=False, default=0)
     profile_pic = models.ImageField(upload_to='profile_pic', null=False, default='/profile_pic/default.png', validators=[validate_file_size])
-    introduce = models.TextField(max_length=150, null=False, default='')
+    introduce = models.TextField(max_length=50, null=False, default='')
     is_verified = models.BooleanField(default=False)
 
 
