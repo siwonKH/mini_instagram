@@ -90,10 +90,11 @@ class PostPage(views.View):
         post = get_object_or_404(Post, id=post_id)
 
         comments = PostComment.objects.filter(post_id=post_id)
-
+        profile_pic = request.session.get('profile_pic')
         context = {
             'post': post,
-            'comments': comments
+            'comments': comments,
+            'profile_pic': profile_pic
         }
         return render(request, 'post.html', context)
 
@@ -235,10 +236,12 @@ class EditPost(views.View):
         if str(user_pk) != str(post.author.id):  # 수정하려는 사람과 작성자가 다르다면
             return redirect('/')
 
+        profile_pic = request.session.get('profile_pic')
         context = {
             'id': post_id,
             'image': post.image,
-            'desc': post.description
+            'desc': post.description,
+            'profile_pic': profile_pic
         }
         return render(request, 'edit_post.html', context)
 
@@ -484,4 +487,65 @@ class MyPage(views.View):
                 'user': user,
             }
             return render(request, 'mypage.html', context)
+        return redirect('/login')
+
+
+class SettingPage(views.View):
+    @staticmethod
+    def post(request):
+        pass
+
+    @staticmethod
+    def get(request):
+        user_pk = request.session.get('user')
+        if user_pk:
+            user = User.objects.get(id=user_pk)
+            profile_pic = request.session.get('profile_pic')
+            context = {
+                'user': user,
+                'profile_pic': profile_pic
+            }
+            return render(request, 'setting_profil.html', context)
+        return redirect('/login')
+
+
+class ChangePwPage(views.View):
+    @staticmethod
+    def post(request):
+        user_pk = request.session.get('user')
+        if not user_pk:
+            return HttpResponseNotAllowed('not allowed')
+        try:
+            password = str(request.POST['password'])
+            new_password = str(request.POST['new-password'])
+            new_password_chk = str(request.POST['new-password-check'])
+        except:
+            return HttpResponseBadRequest('invalid request')
+        user = get_object_or_404(User, id=user_pk)
+        salted_password = str(user.salt) + str(password)
+        hashed_password = hashlib.sha256(salted_password.encode()).hexdigest()
+
+        if str(user.password) == str(hashed_password):
+            if new_password == new_password_chk:
+                salt = get_random_unicode(10)
+                salted_new_password = str(salt) + str(new_password)
+                hashed_new_password = hashlib.sha256(salted_new_password.encode()).hexdigest()
+                user.salt = salt
+                user.password = hashed_new_password
+                user.save()
+                return HttpResponse(json.dumps({'changepwRes': "success"}), content_type="application/json")
+            else:
+                return HttpResponseBadRequest('new password is different')
+        else:
+            return HttpResponse(json.dumps({'changepwRes': "fail"}), content_type="application/json")
+
+    @staticmethod
+    def get(request):
+        user_pk = request.session.get('user')
+        if user_pk:
+            profile_pic = request.session.get('profile_pic')
+            context = {
+                'profile_pic': profile_pic
+            }
+            return render(request, 'setting_passwd.html', context)
         return redirect('/login')
