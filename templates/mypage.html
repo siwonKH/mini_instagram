@@ -13,7 +13,7 @@
         </a>
         <ul class="dropdown-menu">
             <li><a class="dropdown-item active" href="/mypage">프로필</a></li>
-            <li><a class="dropdown-item" href="#">설정</a></li>
+            <li><a class="dropdown-item" href="/setting">설정</a></li>
             <li>
                 <hr class="dropdown-divider">
             </li>
@@ -23,6 +23,25 @@
 {% endblock %}
 
 {% block content %}
+    <style>
+    div.gallery {
+        margin: 5px;
+        border: 1px solid #ccc;
+        float: left;
+        width: 242px;
+        height: 242px;
+        overflow: hidden;
+    }
+
+    div.gallery:hover {
+        border: 1px solid #777;
+    }
+
+    div.gallery img {
+        width: 100%;
+        height: auto;
+    }
+    </style>
     <section>
         <div class="mypage-content">
             <div class="mypage-head">
@@ -32,7 +51,7 @@
                 <div class="kit">
                     <div>
                         <h2 class="nick">{{ user.nickname }}</h2>
-                        <a href="#"><button class="profil-button">프로필 편집</button></a>
+                        <a href="/setting"><button class="profil-button">프로필 편집</button></a>
                     </div>
                     <div class="follo">
                         팔로워 <strong>XX</strong>&nbsp;
@@ -46,13 +65,15 @@
                 </div>
             </div>
             <div class="mypage-main">
-                <span class="item"><img class="cont-img" src="/static/image/식극의 소마.png" alt=""></span>
-                <span class="item"><img class="cont-img" src="/static/image/식극의 소마.png" alt=""></span>
-                <span class="item"><img class="cont-img" src="/static/image/식극의 소마.png" alt=""></span>
-                <span class="item"><img class="cont-img" src="/static/image/식극의 소마.png" alt=""></span>
-                <span class="item"><img class="cont-img" src="/static/image/식극의 소마.png" alt=""></span>
-                <span class="item"><img class="cont-img" src="/static/image/식극의 소마.png" alt=""></span>
+                {% for post in user.post_user.all %}
+                <div class="gallery">
+                    <a href="/post?id={{ post.id }}">
+                        <img src="{{ post.image.url }}" alt="" width="600" height="600">
+                    </a>
+                </div>
+                {% endfor %}
             </div>
+
         </div>
     </section>
 {% endblock %}
