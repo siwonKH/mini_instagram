@@ -10,15 +10,18 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django import views
 from django.contrib.auth import logout
 from django.utils.crypto import get_random_string
+from ratelimit.decorators import ratelimit
+from django.utils.decorators import method_decorator
 
 from .models import User, Post, PostLike, PostComment
 from django.views.generic.list import ListView
 from .utils import get_random_unicode
+from django.views.decorators.csrf import csrf_exempt
 
 
 class PostsView(ListView):
     model = Post
-    paginate_by = 1
+    paginate_by = 3
     context_object_name = 'posts'
     template_name = 'index.html'
     ordering = ['-id']
@@ -31,6 +34,7 @@ class PostsView(ListView):
             if user.is_verified is True:
                 context['user_id'] = user_pk
                 context['profile_pic'] = self.request.session.get('profile_pic')
+                context['likes'] = PostLike.objects.filter(user_id=user)
                 return context
         return None
 
@@ -82,6 +86,9 @@ class PostPage(views.View):
 
     @staticmethod
     def get(request):
+        email = request.session.get('email')
+        if email:
+            return HttpResponseNotAllowed('not allowed')
         user_pk = request.session.get('user')
         if not user_pk:
             return redirect('/login')
@@ -101,7 +108,11 @@ class PostPage(views.View):
 
 class AddPost(views.View):
     @staticmethod
+    @ratelimit(key='ip', rate='6/m')
     def post(request):
+        email = request.session.get('email')
+        if email:
+            return HttpResponseNotAllowed('not allowed')
         user_pk = request.session.get('user')
         if user_pk:
             user = User.objects.get(id=user_pk)
@@ -127,6 +138,9 @@ class AddPost(views.View):
 
     @staticmethod
     def get(request):
+        email = request.session.get('email')
+        if email:
+            return HttpResponseNotAllowed('not allowed')
         user_pk = request.session.get('user')
         if user_pk:
             profile_pic = request.session.get('profile_pic')
@@ -137,7 +151,11 @@ class AddPost(views.View):
 
 class Comment(views.View):
     @staticmethod
+    @ratelimit(key='ip', rate='10/m')
     def post(request):
+        email = request.session.get('email')
+        if email:
+            return HttpResponseNotAllowed('not allowed')
         user_pk = request.session.get('user')
         if user_pk:
             user = User.objects.get(id=user_pk)
@@ -186,6 +204,9 @@ class Comment(views.View):
 
     @staticmethod
     def get(request):
+        email = request.session.get('email')
+        if email:
+            return HttpResponseNotAllowed('not allowed')
         user_pk = request.session.get('user')
         if not user_pk:
             return redirect('/login')
@@ -198,6 +219,9 @@ class Comment(views.View):
 class EditPost(views.View):
     @staticmethod
     def post(request):
+        email = request.session.get('email')
+        if email:
+            return HttpResponseNotAllowed('not allowed')
         user_pk = request.session.get('user')
         if not user_pk:
             return redirect('/login')
@@ -223,6 +247,9 @@ class EditPost(views.View):
 
     @staticmethod
     def get(request):
+        email = request.session.get('email')
+        if email:
+            return HttpResponseNotAllowed('not allowed')
         user_pk = request.session.get('user')
         if not user_pk:
             return redirect('/login')
@@ -249,6 +276,9 @@ class EditPost(views.View):
 class DeletePost(views.View):
     @staticmethod
     def post(request):
+        email = request.session.get('email')
+        if email:
+            return HttpResponseNotAllowed('not allowed')
         user_pk = request.session.get('user')
         if not user_pk:
             return HttpResponseNotAllowed('login')
@@ -270,9 +300,9 @@ class DeletePost(views.View):
         return HttpResponseNotAllowed('POST')
 
 
+@method_decorator(ratelimit(key='user_or_ip', rate='1/m', method='POST'), name='post')
 class Login(views.View):
-    @staticmethod
-    def post(request):
+    def post(self, request):
         email = request.POST['email']
         password = request.POST['password']
 
@@ -298,6 +328,9 @@ class Login(views.View):
 
     @staticmethod
     def get(request):
+        verified = request.session.get('verify')
+        if verified:
+            return redirect('/findpw')
         user_pk = request.session.get('user')  # 사용자 세션 확인
         if user_pk:  # 세션이 비지 않았다면?
             # 여기 왜 왔어~ 로그인 했으면 홈으로 돌아가~
@@ -314,24 +347,22 @@ class EmailVerify(views.View):
         if not email:
             return HttpResponseBadRequest('invalid request')
 
-        user_pk = request.session.get('user')
-        if not user_pk:
-            return HttpResponseNotAllowed('login needed')
         try:
             input_code = request.POST['code']
-            email = None
             name = None
         except:
             input_code = None
-            email = request.POST['email']
             name = request.POST['name']
 
         if input_code and len(input_code) == 6:
             verify_code = request.session.get('verify_code')
             if input_code == verify_code:
-                user = get_object_or_404(User, id=user_pk)
+                user = get_object_or_404(User, email=email)
                 user.is_verified = True
+                user.email = email
                 user.save()
+
+                request.session['verify'] = user.id
 
                 del request.session['verify_code']
                 del request.session['email']
@@ -343,18 +374,19 @@ class EmailVerify(views.View):
                 tried = int(tried) + 1
                 if tried >= 10:
                     logout(request)
+                request.session['verify_tried'] = str(tried)
             else:
                 request.session['verify_tried'] = "1"
             context = {'verifyRes': "fail"}
             return HttpResponse(json.dumps(context), content_type="application/json")
 
         elif email and name:
-            if User.objects.filter(email=email, name=name, id=user_pk).exists():
+            if User.objects.filter(email=email, name=name).exists():
                 verify_code = get_random_string(length=6, allowed_chars='1234567890')
                 request.session['verify_code'] = verify_code
                 spaced_code = verify_code[0:3] + ' ' + verify_code[3:6]
                 email = EmailMessage(
-                    f'[{spaced_code}] mini-instagram Verification code',
+                    f'{spaced_code} mini-instagram Verification code',
                     f'Your code is: {verify_code}',
                     to=[email]
                 )
@@ -365,7 +397,7 @@ class EmailVerify(views.View):
             else:
                 context = {'email_send': "fail"}
                 return HttpResponse(json.dumps(context), content_type="application/json")
-        return HttpResponseBadRequest('invalid request')
+        return HttpResponseBadRequest('invalid request.')
 
     @staticmethod
     def get(request):
@@ -374,12 +406,12 @@ class EmailVerify(views.View):
             if request.session.get('verify_code'):
                 return render(request, 'verify_code.html')
             else:
-                return render(request, 'email_verify.html', {'email': email})
+                return render(request, 'email_verify.html', {'email': email, 'type': "first_verify"})
 
         user_pk = request.session.get('user')
         if user_pk:
             return redirect('/')
-        return redirect('/login')
+        return render(request, 'email_verify.html', {'type': "find_pw"})
 
 
 class ResendEmail(views.View):
@@ -389,9 +421,14 @@ class ResendEmail(views.View):
             reset = request.POST['reset_verify']
         except:
             return HttpResponseBadRequest('')
+
         user_pk = request.session.get('user')
         email = request.session.get('email')
-        if user_pk and email:
+        verified = None
+        if not user_pk:
+            verified = request.session.get('verify')
+
+        if email or verified:
             if reset == "reset":
                 del request.session['verify_code']
                 context = {'resetRes': "success"}
@@ -418,6 +455,10 @@ class LogOut(views.View):
 class SignUp(views.View):
     @staticmethod
     def post(request):
+        email = request.session.get('email')
+        if email:
+            return HttpResponseNotAllowed('not allowed')
+
         try:
             name = str(request.POST['name'])
             nickname = str(request.POST['nickname'])
@@ -480,6 +521,9 @@ class MyPage(views.View):
 
     @staticmethod
     def get(request):
+        email = request.session.get('email')
+        if email:
+            return HttpResponseNotAllowed('not allowed')
         user_pk = request.session.get('user')
         if user_pk:
             user = User.objects.get(id=user_pk)
@@ -493,10 +537,38 @@ class MyPage(views.View):
 class SettingPage(views.View):
     @staticmethod
     def post(request):
-        pass
+        user_pk = request.session.get('user')
+        if not user_pk:
+            return HttpResponseNotAllowed('login')
+        try:
+            name = request.POST['name']
+            nickname = request.POST['nickname']
+            email = request.POST['email']
+            introduce = request.POST['intro']
+        except:
+            return HttpResponse(json.dumps({'settingRes': "fail"}), content_type="application/json")
+        user = get_object_or_404(User, id=user_pk)
+        recent_name = user.name
+        recent_nickname = user.nickname
+        recent_email = user.email
+        recent_introduce = user.introduce
+        if recent_name != name:
+            user.name = name
+        if recent_nickname != nickname:
+            user.nickname = nickname
+        if recent_introduce != introduce:
+            user.introduce = introduce
+        if recent_email != email:
+            user.is_verified = False
+            request.session['email'] = email
+        user.save()
+        return HttpResponse(json.dumps({'settingRes': "success"}), content_type="application/json")
 
     @staticmethod
     def get(request):
+        email = request.session.get('email')
+        if email:
+            return HttpResponseNotAllowed('not allowed')
         user_pk = request.session.get('user')
         if user_pk:
             user = User.objects.get(id=user_pk)
@@ -513,34 +585,50 @@ class ChangePwPage(views.View):
     @staticmethod
     def post(request):
         user_pk = request.session.get('user')
-        if not user_pk:
-            return HttpResponseNotAllowed('not allowed')
-        try:
-            password = str(request.POST['password'])
-            new_password = str(request.POST['new-password'])
-            new_password_chk = str(request.POST['new-password-check'])
-        except:
-            return HttpResponseBadRequest('invalid request')
-        user = get_object_or_404(User, id=user_pk)
-        salted_password = str(user.salt) + str(password)
-        hashed_password = hashlib.sha256(salted_password.encode()).hexdigest()
+        verified = request.session.get('verify')
+        if user_pk:
+            try:
+                password = str(request.POST['password'])
+                new_password = str(request.POST['new-password'])
+                new_password_chk = str(request.POST['new-password-check'])
+            except:
+                return HttpResponseBadRequest('invalid request')
+            user = get_object_or_404(User, id=user_pk)
+            salted_password = str(user.salt) + str(password)
+            hashed_password = hashlib.sha256(salted_password.encode()).hexdigest()
 
-        if str(user.password) == str(hashed_password):
-            if new_password == new_password_chk:
-                salt = get_random_unicode(10)
-                salted_new_password = str(salt) + str(new_password)
-                hashed_new_password = hashlib.sha256(salted_new_password.encode()).hexdigest()
-                user.salt = salt
-                user.password = hashed_new_password
-                user.save()
-                return HttpResponse(json.dumps({'changepwRes': "success"}), content_type="application/json")
-            else:
-                return HttpResponseBadRequest('new password is different')
+            if str(user.password) != str(hashed_password):
+                return HttpResponse(json.dumps({'changepwRes': "fail"}), content_type="application/json")
+        elif verified:
+            try:
+                new_password = str(request.POST['password'])
+                new_password_chk = str(request.POST['password-check'])
+            except:
+                return HttpResponseBadRequest('invalid request')
+            user = get_object_or_404(User, id=verified)
         else:
-            return HttpResponse(json.dumps({'changepwRes': "fail"}), content_type="application/json")
+            return HttpResponseNotAllowed('not allowed')
+
+        if new_password == new_password_chk:
+            salt = get_random_unicode(10)
+            salted_new_password = str(salt) + str(new_password)
+            hashed_new_password = hashlib.sha256(salted_new_password.encode()).hexdigest()
+            user.salt = salt
+            user.password = hashed_new_password
+            user.save()
+            try:
+                del request.session['verify']
+            except:
+                pass
+            return HttpResponse(json.dumps({'changepwRes': "success"}), content_type="application/json")
+        else:
+            return HttpResponse('new password is different')
 
     @staticmethod
     def get(request):
+        email = request.session.get('email')
+        if email:
+            return HttpResponseNotAllowed('not allowed')
         user_pk = request.session.get('user')
         if user_pk:
             profile_pic = request.session.get('profile_pic')
@@ -549,3 +637,91 @@ class ChangePwPage(views.View):
             }
             return render(request, 'setting_passwd.html', context)
         return redirect('/login')
+
+
+class FindingPwPage(views.View):
+    @staticmethod
+    def post(request):
+        email = str(request.POST['email'])
+        name = str(request.POST['name'])
+
+        if User.objects.filter(email=email, name=name).exists():
+            user = User.objects.get(email=email)
+            if user.name != name:
+                return HttpResponse(json.dumps({'findingpwRes': "fail"}), content_type="application/json")
+            verified = request.session.get('verify')
+            if verified:
+                return HttpResponseBadRequest('already verified')
+            else:
+                user.is_verified = False
+                user.save()
+                request.session['email'] = email
+                return HttpResponse(json.dumps({'findingpwRes': "success"}), content_type="application/json")
+
+    @staticmethod
+    def get(request):
+        verified = request.session.get('verify')
+        if verified:
+            return render(request, 'change_lost_pw.html')
+        user_pk = request.session.get('user')
+        if user_pk:
+            return HttpResponseNotAllowed('already logined')
+        return render(request, 'email_verify.html', {'is_finding_pw': "1"})
+
+
+class AddHeart(views.View):
+    @staticmethod
+    def post(request):
+        user_pk = request.session.get('user')
+        if not user_pk:
+            return HttpResponseNotAllowed('login')
+
+        post_id = request.POST['post_id']
+
+        like = request.session.get(f'post{post_id}')
+        post = get_object_or_404(Post, id=post_id)
+        if like:
+            like = str(int(like) + 1)
+        else:
+            user = get_object_or_404(User, id=user_pk)
+            if PostLike.objects.filter(user_id=user, post_id=post).exists():
+                like = "2"
+            else:
+                like = "1"
+        request.session[f'post{post_id}'] = like
+
+        user = get_object_or_404(User, id=user_pk)
+        if int(like) % 2 == 0:
+            PostLike.objects.filter(user_id=user, post_id=post).delete()
+        else:
+            PostLike.objects.filter(user_id=user, post_id=post).delete()
+            post_like = PostLike()
+            post_like.post_id = post
+            post_like.user_id = user
+            post_like.save()
+
+        return HttpResponse(json.dumps({'r': "s"}), content_type="application/json")
+
+    @staticmethod
+    def get(request):
+        return HttpResponseNotAllowed('post')
+
+
+class CheckHeart(views.View):
+    @staticmethod
+    @ratelimit(key='post:post_id', rate='10/m')
+    def post(request, *args):
+        user_pk = request.session.get('user')
+        if not user_pk:
+            return HttpResponseNotAllowed('login')
+        post_id = request.POST['post_id']
+        post = get_object_or_404(Post, id=post_id)
+        user = get_object_or_404(User, id=user_pk)
+        if PostLike.objects.filter(user_id=user, post_id=post).exists():
+            return HttpResponse(json.dumps({'r': "y"}), content_type="application/json")
+        else:
+            return HttpResponse(json.dumps({'r': "n"}), content_type="application/json")
+
+    @staticmethod
+    def get(request):
+        return HttpResponseNotAllowed('post')

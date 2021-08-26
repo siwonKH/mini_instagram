@@ -70,7 +70,7 @@
                         <div class="commet" style="overflow:auto;">
                             <div style="clear: both;">
                                 <div style="float: left; padding-right: .5rem;">
-                                    <a href="/{{ post.author.nickname }}">
+                                    <a href="/@{{ post.author.nickname }}">
                                         <p class="explanation" style="color: black;">
                                             <img src="{{ post.author.profile_pic.url }}" style="border-radius: 20px;" width="30rem" class="d-inline-block" alt="">
                                             <bold class="user" style="color: black;">&nbsp;{{ post.author.nickname }}</bold>
@@ -86,7 +86,7 @@
                             {% for comment in post.post_comment.all %}
                             <div style="clear: both;">
                                 <div style="float: left; padding-right: .5rem;">
-                                    <a href="/{{ comment.user_id.nickname }}">
+                                    <a href="/@{{ comment.user_id.nickname }}">
                                         <p class="sympathy" style="color: black;">
                                             <img src="{{ comment.user_id.profile_pic.url }}" style="border-radius: 20px;" width="30rem" class="d-inline-block" alt="">
                                             <bold class="user" style="color: black;">&nbsp;{{ comment.user_id.nickname }}</bold>
@@ -125,6 +125,7 @@
                 </div>
             </div>
         </div>
+        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
         <script>
             $(document).ready(function () {
                 $('#comment-input').on('input change', function () {
@@ -138,7 +139,6 @@
                 });
             });
         </script>
-        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
         <script>
             function getCookie(name) {
                 let cookieValue = null;

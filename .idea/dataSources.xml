@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="insta@218.158.89.141" uuid="a358015e-9950-4682-b0f0-7a5620f95af8">
+    <data-source source="LOCAL" name="MariaDB - insta@218.158.89.141" uuid="a358015e-9950-4682-b0f0-7a5620f95af8">
       <driver-ref>mariadb</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>

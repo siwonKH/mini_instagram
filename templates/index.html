@@ -1,4 +1,5 @@
 {% extends '_layout.html' %}
+{% load humanize %}
 
 {% block navbar %}
     <li class="nav-item">
@@ -32,9 +33,9 @@
                             <div>
                                 <ul class="navbar navbar-light navbar-expand-lg navbar-light" style="margin-top: -1rem; margin-bottom: -.2rem;">
                                     <li class="nav-item">
-                                        <a class="nav-link" href="/{{ post.author.nickname }}">
-                                            <img src="{{ post.author.profile_pic.url }}" style="border-radius: 20px; margin-left: -3rem;" width="30rem" class="d-inline-block" alt="">
-                                            <bold class="user" style="color: black;">&nbsp;{{ post.author.nickname }}</bold>
+                                        <a class="nav-link" href="/@{{ post.author.nickname }}">
+                                            <img onload="ajaxHeartCheck({{ post.id }})" src="{{ post.author.profile_pic.url }}" style="border-radius: 20px; margin-left: -3rem;" width="30rem" class="d-inline-block" alt="">
+                                            <b class="user" style="color: black;">&nbsp;{{ post.author.nickname }}</b>
                                         </a>
                                     </li>
                                     <li>
@@ -62,11 +63,12 @@
                             <div>
                                 <div>
                                     <div class="lov">
-                                        <i class="far fa-heart fa-sm"></i>
+                                        <a onclick="ajaxHeart({{ post.id }})"><i id="heart-{{ post.id }}" class="far fa-heart fa-sm"></i></a>
+                                        <span id="like-{{ post.id }}">{{ post.post_like.count|intword }}</span>
                                     </div>
                                     <div>
                                         <p class="explanation">
-                                            <bold class="user">{{ post.author.nickname }}</bold>&nbsp;&nbsp;{{ post.description|truncatechars:30 }}
+                                            <b class="user">{{ post.author.nickname }}</b>&nbsp;&nbsp;{{ post.description|truncatechars:30 }}
                                         </p>
                                     </div>
                                 </div>
@@ -117,10 +119,10 @@
             $.ajax({
                 type: 'GET',
                 url:'/check',
-                success:function(res){
-                    if(res.login === "false") {
+                success:(res) => {
+                    if (res.login === "false") {
                         location.href = "/login"
-                    } else if(res.verified === "false") {
+                    } else if (res.verified === "false") {
                         location.href = "/verify"
                     }
                 }
@@ -193,10 +195,10 @@
         </script>
         <script>
             function ajaxComment(post_id) {
-                const comment_el = $(`#comment-input${post_id}`)
+                const comment_el = $(`#comment-input-${post_id}`)
                 const comment = comment_el.val()
                 const submitBtn = $('#submit')
-                comment_el.value = ""
+                document.getElementById(`comment-input-${post_id}`).value = ""
                 submitBtn.prop('disabled', true);
                 $.ajax({
                     type: 'POST',
@@ -218,6 +220,60 @@
                             alert('failed')
                         }
                         submitBtn.prop('disabled', false);
+                    }
+                })
+            }
+        </script>
+        <script>
+            function ajaxHeart(post_id) {
+                $.ajax({
+                    type: 'POST',
+                    url:'/addheart',
+                    data: {
+                        'csrfmiddlewaretoken': getCookie('csrftoken'),
+                        'post_id': post_id,
+                    },
+                    success:function(res){
+                        if(res.r === "s") {
+                            if ( document.getElementById(`heart-${post_id}`).classList.contains('fas') ) {
+                                document.getElementById(`heart-${post_id}`).classList.add('far')
+                                document.getElementById(`heart-${post_id}`).classList.remove('fas')
+                                let like_cnt = document.getElementById(`like-${post_id}`)
+                                like_cnt.innerText = Number(like_cnt.innerText)-1
+                            }
+                            else if ( document.getElementById(`heart-${post_id}`).classList.contains('far') ) {
+                                document.getElementById(`heart-${post_id}`).classList.add('fas')
+                                document.getElementById(`heart-${post_id}`).classList.remove('far')
+                                let like_cnt = document.getElementById(`like-${post_id}`)
+                                like_cnt.innerText = Number(like_cnt.innerText)+1
+                            }
+                        }
+                    }
+                })
+            }
+        </script>
+        <script>
+            function ajaxHeartCheck(post_id) {
+                $.ajax({
+                    type: 'POST',
+                    url:'/checkheart',
+                    data: {
+                        'csrfmiddlewaretoken': getCookie('csrftoken'),
+                        'post_id': post_id,
+                    },
+                    success:function(res){
+                        if(res.r === "y") {
+                            if (document.getElementById(`heart-${post_id}`).classList.contains('far')) {
+                                document.getElementById(`heart-${post_id}`).classList.add('fas')
+                                document.getElementById(`heart-${post_id}`).classList.remove('far')
+                            }
+                        }
+                        else {
+                            if ( document.getElementById(`heart-${post_id}`).classList.contains('fas') ) {
+                                document.getElementById(`heart-${post_id}`).classList.add('far')
+                                document.getElementById(`heart-${post_id}`).classList.remove('fas')
+                            }
+                        }
                     }
                 })
             }

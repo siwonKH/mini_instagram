@@ -43,11 +43,12 @@
                 </form>
             </div>
         </div>
+        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
         <script>
             $(document).ready(function () {
                 $('#code').on('input change', function () {
                     document.querySelector("#error-msg").innerText = ""
-                    if ($(this).val().length > 3) {
+                    if ($(this).val().length === 6) {
                         $('#submit').prop('disabled', false);
                     } else {
                         $('#submit').prop('disabled', true);
@@ -55,7 +56,6 @@
                 });
             });
         </script>
-        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
         <script>
             function getCookie(name) {
                 let cookieValue = null;

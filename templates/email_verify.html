@@ -41,6 +41,7 @@
                 </form>
             </div>
         </div>
+        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
         <script>
             $(document).ready(function () {
                 $('#name').on('input change', function () {
@@ -63,7 +64,6 @@
                 });
             });
         </script>
-        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
         <script>
             function getCookie(name) {
                 let cookieValue = null;
@@ -86,23 +86,58 @@
                 submitBtn.prop('disabled', true);
                 const name = $('#name').val()
                 const email = $('#email').val()
-                $.ajax({
-                    type: 'POST',
-                    url:'/verify',
-                    data: {
-                        'csrfmiddlewaretoken': getCookie('csrftoken'),
-                        'name': name,
-                        'email': email,
-                    },
-                    success:function(res){
-                        if(res.email_send === "success") {
-                            location.href = "/verify"
-                        } else if(res.email_send === "fail") {
-                            document.querySelector("#error-msg").innerText = "이름 또는 이메일을 확인해주세요"
+                {% if is_finding_pw %}
+                    $.ajax({
+                        type: 'POST',
+                        url: '/findpw',
+                        data: {
+                            'csrfmiddlewaretoken': getCookie('csrftoken'),
+                            'name': name,
+                            'email': email,
+                        },
+                        success: function (res) {
+                            if (res.email_send === "fail") {
+                                document.querySelector("#error-msg").innerText = "이름 또는 이메일을 확인해주세요"
+                            }
+                            $.ajax({
+                                type: 'POST',
+                                url:'/verify',
+                                data: {
+                                    'csrfmiddlewaretoken': getCookie('csrftoken'),
+                                    'name': name,
+                                    'email': email,
+                                },
+                                success:function(res){
+                                    if(res.email_send === "success") {
+                                        location.href = "/verify"
+                                    } else if(res.email_send === "fail") {
+                                        document.querySelector("#error-msg").innerText = "이름 또는 이메일을 확인해주세요"
+                                    }
+                                    submitBtn.prop('disabled', false);
+                                }
+                            })
                         }
-                        submitBtn.prop('disabled', false);
-                    }
-                })
+                    })
+                {% else %}
+                    $.ajax({
+                        type: 'POST',
+                        url:'/verify',
+                        data: {
+                            'csrfmiddlewaretoken': getCookie('csrftoken'),
+                            'name': name,
+                            'email': email,
+                        },
+                        success:function(res){
+                            if(res.email_send === "success") {
+                                location.href = "/verify"
+                            } else if(res.email_send === "fail") {
+                                document.querySelector("#error-msg").innerText = "이름 또는 이메일을 확인해주세요"
+                            }
+                            submitBtn.prop('disabled', false);
+                        }
+                    })
+                {% endif %}
+
             }
         </script>
     </section>

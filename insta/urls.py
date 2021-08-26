@@ -1,11 +1,12 @@
 from django.urls import path
-from .views import Home, UserDetailView, PostPage, AddPost, Comment, EditPost, DeletePost, EmailVerify, ResendEmail, SignUp, Login, LogOut, MyPage, SettingPage, ChangePwPage
+from .views import Home, UserDetailView, PostPage, AddPost, Comment, EditPost, DeletePost, EmailVerify, ResendEmail, SignUp, Login, LogOut, MyPage, SettingPage, ChangePwPage, FindingPwPage, AddHeart, CheckHeart
 from .utils import check
+from ratelimit.decorators import ratelimit
 
 app_name = 'insta'
 urlpatterns = [
     path('home', Home.as_view()),
-    path('<str:nickname>/', UserDetailView.as_view(), name='user_detail'),
+    path('@<str:nickname>', UserDetailView.as_view(), name='user_detail'),
     path('post', PostPage.as_view()),
     path('addpost', AddPost.as_view()),
     path('editpost', EditPost.as_view()),
@@ -20,4 +21,7 @@ urlpatterns = [
     path('mypage', MyPage.as_view()),
     path('setting', SettingPage.as_view()),
     path('changepw', ChangePwPage.as_view()),
+    path('findpw', FindingPwPage.as_view()),
+    path('addheart', AddHeart.as_view()),
+    path('checkheart', CheckHeart.as_view()),
 ]

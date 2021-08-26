@@ -5,7 +5,7 @@
         <a class="nav-link" href="/">홈</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link active" href="/addpost">게시글 추가</a>
+        <a class="nav-link" href="/addpost">게시글 추가</a>
     </li>
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -44,6 +44,7 @@
                 <form class="row login_form" method="post">
                     <h4 class="my-5" style="margin-top: 1.5rem;">프로필 편집</h4>
                     <div class="col text-center">
+                        {% csrf_token %}
                         <div class="col-md-12 form-group mini-first">
                             <label for="" class="mini" style="margin-right: 1rem;">성명&nbsp;&nbsp;&nbsp;</label>
                             <label>
@@ -56,7 +57,7 @@
                             <label for="" class="mini" style="margin-right: 1rem;">닉네임</label>
                             <label>
                                 <input id="nickname" style="margin-bottom: .8rem;" aria-label="닉네임" class="form-control setting-form"
-                                    aria-required="true" maxlength="50" name="username" type="text" value="{{ user.nickname }}"
+                                    aria-required="true" maxlength="50" name="nickname" type="text" value="{{ user.nickname }}"
                                     placeholder="닉네임" onfocus="this.placeholder = ''" onblur="this.placeholder = '닉네임'">
                             </label>
                         </div>
@@ -71,20 +72,21 @@
                         <div class="col-md-12 form-group">
                             <label for="" class="setleft mini" style="margin-right: 1rem;">소개&nbsp;&nbsp;&nbsp;</label>
                             <label>
-                                <textarea id="desc" class="form-control setting-form" style="margin-bottom: .8rem; resize: none;" rows="4" cols="22" placeholder="설명">{{ user.introduce }}</textarea>
+                                <textarea id="desc" name="intro" class="form-control setting-form" style="margin-bottom: .8rem; resize: none;" rows="4" cols="22" placeholder="설명">{{ user.introduce }}</textarea>
                             </label>
                         </div>
                         <div>
                             <p id="error-msg" style="color: red; font-size: 10pt"></p>
                         </div>
                         <div class="col-md-12 form-group ">
-                            <button id="submit" style="margin-top: .5rem; width: auto; min-width: 12rem; margin-bottom: 2rem;" type="submit" class="btn btn-primary" disabled>수정하기</button>
+                            <button id="submit" style="margin-top: .5rem; width: auto; min-width: 12rem; margin-bottom: 2rem;" type="button" class="btn btn-primary" onclick="ajaxSetting()" disabled>수정하기</button>
                         </div>
                         <div class="col m-5"></div>
                     </div>
                 </form>
             </div>
         </div>
+        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
         <script>
             $(document).ready(function () {
                 $('#name').on('input change', function () {
@@ -119,6 +121,49 @@
                     err_msg.innerText = ""
                     $('#submit').prop('disabled', false)
                 }
+            }
+        </script>
+        <script>
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        </script>
+        <script>
+            function ajaxSetting() {
+                const submitBtn = $('#submit')
+                submitBtn.prop('disabled', true);
+                const name = $('#name').val()
+                const nickname = $('#nickname').val()
+                const email = $('#email').val()
+                const intro = $('#desc').val()
+                $.ajax({
+                    type: 'POST',
+                    url:'/setting',
+                    data: {
+                        'csrfmiddlewaretoken': getCookie('csrftoken'),
+                        'name': name,
+                        'nickname': nickname,
+                        'email': email,
+                        'intro': intro,
+                    },
+                    success:function(res){
+                        if(res.settingRes === "success"){
+                            location.href = "/"
+                        }
+                    }
+                })
+                submitBtn.prop('disabled', false);
             }
         </script>
     </section>

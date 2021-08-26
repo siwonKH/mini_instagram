@@ -37,7 +37,7 @@
                         </div>
                         <div class="my-3">
                             <div class="col text-center m-2">
-                                <a href="#">비밀번호 찾기</a>
+                                <a href="/findpw">비밀번호 찾기</a>
                             </div>
                             <div class="col text-center m-2">
                                 <a href="/signup">회원가입하기</a>
@@ -47,6 +47,7 @@
                 </form>
             </div>
         </div>
+        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
         <script>
             $(document).ready(function () {
                 $('#email').on('input change', function () {
@@ -67,7 +68,6 @@
                 });
             });
         </script>
-        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
         <script>
             function getCookie(name) {
                 let cookieValue = null;
