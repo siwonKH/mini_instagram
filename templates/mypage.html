@@ -28,8 +28,8 @@
         margin: 5px;
         border: 1px solid #ccc;
         float: left;
-        width: 242px;
-        height: 242px;
+        width: 230px;
+        height: 230px;
         overflow: hidden;
     }
 
@@ -51,7 +51,10 @@
                 <div class="kit">
                     <div>
                         <h2 class="nick">{{ user.nickname }}</h2>
+                        {% if user_id == user.id %}
                         <a href="/setting"><button class="profil-button">프로필 편집</button></a>
+                        {% endif %}
+
                     </div>
                     <div class="follo">
                         팔로워 <strong>XX</strong>&nbsp;
@@ -67,9 +70,9 @@
             <div class="mypage-main">
                 {% for post in user.post_user.all %}
                 <div class="gallery">
-                    <a href="/post?id={{ post.id }}">
-                        <img src="{{ post.image.url }}" alt="" width="600" height="600">
-                    </a>
+                        <a href="/post?id={{ post.id }}">
+                            <img src="{{ post.image.url }}" alt="" width="600" height="600">
+                        </a>
                 </div>
                 {% endfor %}
             </div>

@@ -24,6 +24,55 @@
 {% endblock %}
 
 {% block content %}
+    <style>
+        @media(min-width: 300px) and (max-width: 400px) {
+            .post_img{
+                max-height: 300px;
+            }
+        }
+        @media(min-width: 400px) and (max-width: 500px) {
+            .post_img{
+                max-height: 400px;
+            }
+        }
+        @media(min-width: 500px) and (max-width: 600px) {
+            .post_img{
+                max-height: 450px;
+            }
+        }
+        @media(min-width: 600px) and (max-width: 800px) {
+            .post_img{
+                max-height: 500px;
+            }
+        }
+        @media(min-width: 800px) and (max-width: 900px) {
+            .post_img{
+                max-height: 600px;
+            }
+        }
+        @media(min-width: 900px) and (max-width: 1000px) {
+            .post_img{
+                max-height: 700px;
+            }
+        }
+        @media(min-width: 1000px) and (max-width: 1200px) {
+            .post_img{
+                max-height: 300px;
+            }
+        }
+        @media(min-width: 1200px) and (max-width: 1400px) {
+            .post_img{
+                max-height: 500px;
+            }
+        }
+        @media(min-width: 1400px) {
+            .post_img{
+                max-height: 600px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+        integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
     <section class="container">
         <div class="row infinite-container">
             {% for post in posts %}
@@ -52,13 +101,19 @@
                                             <li><a class="dropdown-item" href="" onclick="confirmDelete({{ post.id }})">삭제</a></li>
                                         </ul>
                                     </li>
+
                                     {% endif %}
                                 </ul>
                                 <div class="border rounded-3" style="width: 100%;">
-                                    <div style="position: relative; padding-top: 100%; overflow: hidden">
-                                        <img style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;" src="{{ post.image.url }}" alt="">
+                                    <div style="overflow: hidden">
+                                        <img class="post_img" style="max-width: 100%; width: 100%; height: auto; object-fit: contain" src="{{ post.image.url }}" loading="lazy" alt="">
                                     </div>
                                 </div>
+{#                                <div class="border rounded-3" style="width: 100%;">#}
+{#                                    <div style="position: relative; padding-top: 100%; overflow: hidden">#}
+{#                                        <img style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;" src="{{ post.image.url }}" alt="">#}
+{#                                    </div>#}
+{#                                </div>#}
                             </div>
                             <div>
                                 <div>
@@ -83,7 +138,11 @@
                                         </div>
                                         <a href="/post?id={{ post.id }}">
                                             <p class="sympathy" style="color: #8E8E8E; margin-left: .2rem;">
-                                                댓글 더보기
+                                                {% if post.post_comment.all.count > 3 %}
+                                                댓글 {{ post.post_comment.all.count|add:"-3" }}개 더보기
+                                                {% else %}
+                                                자세히 보기
+                                                {% endif %}
                                             </p>
                                         </a>
                                     </div>
@@ -184,7 +243,8 @@
                         },
                         success:function(res){
                             if(res.deleteRes === "success") {
-                                location.href = "/"
+                                location.reload()
+                                window.history.forward(1);
                             } else if(res.deleteRes === "fail") {
                                 alert('failed')
                             }
@@ -226,6 +286,19 @@
         </script>
         <script>
             function ajaxHeart(post_id) {
+                if (document.getElementById(`heart-${post_id}`).classList.contains('fas')) {
+                    document.getElementById(`heart-${post_id}`).classList.add('far');
+                    document.getElementById(`heart-${post_id}`).classList.remove('fas');
+                    let like_cnt = document.getElementById(`like-${post_id}`);
+                    if (Number(like_cnt.innerText) > 0){
+                        like_cnt.innerText = Number(like_cnt.innerText) - 1;
+                    }
+                } else if ( document.getElementById(`heart-${post_id}`).classList.contains('far') ) {
+                    document.getElementById(`heart-${post_id}`).classList.add('fas');
+                    document.getElementById(`heart-${post_id}`).classList.remove('far');
+                    let like_cnt = document.getElementById(`like-${post_id}`);
+                    like_cnt.innerText = Number(like_cnt.innerText) + 1;
+                }
                 $.ajax({
                     type: 'POST',
                     url:'/addheart',
@@ -234,19 +307,21 @@
                         'post_id': post_id,
                     },
                     success:function(res){
-                        if(res.r === "s") {
-                            if ( document.getElementById(`heart-${post_id}`).classList.contains('fas') ) {
-                                document.getElementById(`heart-${post_id}`).classList.add('far')
-                                document.getElementById(`heart-${post_id}`).classList.remove('fas')
-                                let like_cnt = document.getElementById(`like-${post_id}`)
-                                like_cnt.innerText = Number(like_cnt.innerText)-1
+                        if(res.r === "n") {
+                            if (document.getElementById(`heart-${post_id}`).classList.contains('fas')) {
+                                document.getElementById(`heart-${post_id}`).classList.add('far');
+                                document.getElementById(`heart-${post_id}`).classList.remove('fas');
                             }
-                            else if ( document.getElementById(`heart-${post_id}`).classList.contains('far') ) {
-                                document.getElementById(`heart-${post_id}`).classList.add('fas')
-                                document.getElementById(`heart-${post_id}`).classList.remove('far')
-                                let like_cnt = document.getElementById(`like-${post_id}`)
-                                like_cnt.innerText = Number(like_cnt.innerText)+1
+                            {#let like_cnt = document.getElementById(`like-${post_id}`);#}
+                            {#if (Number(like_cnt.innerText) >= 0){#}
+                            {#    like_cnt.innerText = Number(like_cnt.innerText) - 1;}#}
+                        } else {
+                            if ( document.getElementById(`heart-${post_id}`).classList.contains('far') ) {
+                                document.getElementById(`heart-${post_id}`).classList.add('fas');
+                                document.getElementById(`heart-${post_id}`).classList.remove('far');
                             }
+                            {#let like_cnt = document.getElementById(`like-${post_id}`);#}
+                            {#like_cnt.innerText = Number(like_cnt.innerText) + 1;#}
                         }
                     }
                 })
@@ -270,8 +345,8 @@
                         }
                         else {
                             if ( document.getElementById(`heart-${post_id}`).classList.contains('fas') ) {
-                                document.getElementById(`heart-${post_id}`).classList.add('far')
-                                document.getElementById(`heart-${post_id}`).classList.remove('fas')
+                                document.getElementById(`heart-${post_id}`).classList.add('far');
+                                document.getElementById(`heart-${post_id}`).classList.remove('fas');
                             }
                         }
                     }

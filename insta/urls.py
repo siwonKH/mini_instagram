@@ -7,6 +7,7 @@ app_name = 'insta'
 urlpatterns = [
     path('home', Home.as_view()),
     path('@<str:nickname>', UserDetailView.as_view(), name='user_detail'),
+    path('@<str:nickname>/', UserDetailView.as_view(), name='user_detail'),
     path('post', PostPage.as_view()),
     path('addpost', AddPost.as_view()),
     path('editpost', EditPost.as_view()),

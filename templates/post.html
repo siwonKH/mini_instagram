@@ -26,12 +26,16 @@
     <section class="container">
         <div class="post-content content">
             <div class="left left-margin post-img">
+{#                <div class="border rounded-3" style="width: 100%;">#}
+{#                    <div style="position: relative; padding-top: 100%; overflow: hidden">#}
+{#                        <img style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; object-fit: contain" src="{{ post.image.url }}" alt="">#}
+{#                    </div>#}
+{#                </div>#}
                 <div class="border rounded-3" style="width: 100%;">
-                    <div style="position: relative; padding-top: 100%; overflow: hidden">
-                        <img style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;" src="{{ post.image.url }}" alt="">
+                    <div style="overflow: hidden">
+                        <img style="max-width: 100%; max-height: 600px; width: 100%; height: auto; object-fit: contain" src="{{ post.image.url }}" alt="">
                     </div>
                 </div>
-{#                <img src="{{ post.image.url }}" alt="">#}
             </div>
             <div class="left cont">
                 <div>
@@ -67,7 +71,7 @@
                 </div>
                 <div>
                     <div>
-                        <div class="commet" style="overflow:auto;">
+                        <div class="commet" style="overflow:auto; ">
                             <div style="clear: both;">
                                 <div style="float: left; padding-right: .5rem;">
                                     <a href="/@{{ post.author.nickname }}">
@@ -102,7 +106,7 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <div>
+                    <div style="bottom: auto">
                         <div>
                             <p style="font-size: 9px; color: #8E8E8E; margin-top: .2rem; margin-bottom: auto;">
                                 &nbsp;&nbsp;{{ post.created_at.date }}

@@ -13,7 +13,7 @@ from django.utils.crypto import get_random_string
 from ratelimit.decorators import ratelimit
 from django.utils.decorators import method_decorator
 
-from .models import User, Post, PostLike, PostComment
+from .models import User, Post, PostLike, PostComment, UserFollows
 from django.views.generic.list import ListView
 from .utils import get_random_unicode
 from django.views.decorators.csrf import csrf_exempt
@@ -117,15 +117,17 @@ class AddPost(views.View):
         if user_pk:
             user = User.objects.get(id=user_pk)
         else:
-            return redirect('/login')
+            return HttpResponseNotAllowed('login')
 
         # 폼에서 받은 정보 가져오기
         description = request.POST['desc']
         try:
-            image = request.FILES['img']
-
+            # image = request.FILES['img']
+            image = request.FILES['file']
+            if image.size > 5 * 1024 * 1024:
+                return HttpResponseNotAllowed('File should be under 10MB')
         except:
-            return redirect('/addpost')
+            return HttpResponse(json.dumps({'addpostRes': "fail"}), content_type="application/json")
 
         post = Post()
         post.author = user
@@ -134,7 +136,7 @@ class AddPost(views.View):
         post.image = image
         post.save()
 
-        return redirect('/')
+        return HttpResponse(json.dumps({'addpostRes': "success"}), content_type="application/json")
 
     @staticmethod
     def get(request):
@@ -145,7 +147,7 @@ class AddPost(views.View):
         if user_pk:
             profile_pic = request.session.get('profile_pic')
             context = {'profile_pic': profile_pic}
-            return render(request, 'add_post.html', context)
+            return render(request, 'add_postV2.html', context)
         return redirect('/login')
 
 
@@ -529,8 +531,9 @@ class MyPage(views.View):
             user = User.objects.get(id=user_pk)
             context = {
                 'user': user,
+                'user_id': user.id
             }
-            return render(request, 'mypage.html', context)
+            return render(request, 'mypageV2.html', context)
         return redirect('/login')
 
 
@@ -547,6 +550,28 @@ class SettingPage(views.View):
             introduce = request.POST['intro']
         except:
             return HttpResponse(json.dumps({'settingRes': "fail"}), content_type="application/json")
+
+        if User.objects.filter(nickname=nickname).count() != 1:
+            return HttpResponse(json.dumps({'settingRes': "nickname_exists"}), content_type="application/json")
+        if User.objects.filter(email=email).count() != 1:
+            return HttpResponse(json.dumps({'settingRes': "email_exists"}), content_type="application/json")
+
+        if not len(name) > 0:
+            return HttpResponse(json.dumps({'settingRes': "name_short"}), content_type="application/json")
+        if not 4 < len(nickname):
+            return HttpResponse(json.dumps({'settingRes': "nickname_short"}), content_type="application/json")
+        if not len(nickname) < 15:
+            return HttpResponse(json.dumps({'settingRes': "nickname_long"}), content_type="application/json")
+        if not len(email) > 3:
+            return HttpResponse(json.dumps({'settingRes': "email_short"}), content_type="application/json")
+
+        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        if not re.fullmatch(regex, email):
+            return HttpResponse(json.dumps({'settingRes': "invalid_email"}), content_type="application/json")
+        regex = r'^([a-z0-9_](?:(?:[a-z0-9_]|(?:\.(?!\.))){0,13}(?:[a-z0-9_]))?)$'
+        if not re.fullmatch(regex, nickname):
+            return HttpResponse(json.dumps({'settingRes': "invalid_nickname"}), content_type="application/json")
+
         user = get_object_or_404(User, id=user_pk)
         recent_name = user.name
         recent_nickname = user.nickname
@@ -561,6 +586,7 @@ class SettingPage(views.View):
         if recent_email != email:
             user.is_verified = False
             request.session['email'] = email
+
         user.save()
         return HttpResponse(json.dumps({'settingRes': "success"}), content_type="application/json")
 
@@ -657,6 +683,7 @@ class FindingPwPage(views.View):
                 user.save()
                 request.session['email'] = email
                 return HttpResponse(json.dumps({'findingpwRes': "success"}), content_type="application/json")
+        return HttpResponse(json.dumps({'findingpwRes': "fail"}), content_type="application/json")
 
     @staticmethod
     def get(request):
@@ -675,7 +702,6 @@ class AddHeart(views.View):
         user_pk = request.session.get('user')
         if not user_pk:
             return HttpResponseNotAllowed('login')
-
         post_id = request.POST['post_id']
 
         like = request.session.get(f'post{post_id}')
@@ -693,14 +719,15 @@ class AddHeart(views.View):
         user = get_object_or_404(User, id=user_pk)
         if int(like) % 2 == 0:
             PostLike.objects.filter(user_id=user, post_id=post).delete()
+            return HttpResponse(json.dumps({'r': "n"}), content_type="application/json")
         else:
             PostLike.objects.filter(user_id=user, post_id=post).delete()
             post_like = PostLike()
             post_like.post_id = post
             post_like.user_id = user
             post_like.save()
+            return HttpResponse(json.dumps({'r': "y"}), content_type="application/json")
 
-        return HttpResponse(json.dumps({'r': "s"}), content_type="application/json")
 
     @staticmethod
     def get(request):
@@ -716,7 +743,7 @@ class CheckHeart(views.View):
             return HttpResponseNotAllowed('login')
         post_id = request.POST['post_id']
         post = get_object_or_404(Post, id=post_id)
-        user = get_object_or_404(User, id=user_pk)
+        user = User.objects.get(id=user_pk)
         if PostLike.objects.filter(user_id=user, post_id=post).exists():
             return HttpResponse(json.dumps({'r': "y"}), content_type="application/json")
         else:
@@ -725,3 +752,17 @@ class CheckHeart(views.View):
     @staticmethod
     def get(request):
         return HttpResponseNotAllowed('post')
+
+
+class FollowPage(views.View):
+    @staticmethod
+    def post(request):
+        user_pk = request.session.get('user')
+        if not user_pk:
+            return HttpResponseNotAllowed('login')
+
+        follow = request.POST['follow']
+
+        user = User.objects.get(id=user_pk)
+        if UserFollows.objects.filter(user_id=user_pk, following=follow).exists():
+            pass

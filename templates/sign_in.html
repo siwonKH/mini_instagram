@@ -33,7 +33,10 @@
                             <p id="error-msg" style="color: red; font-size: 10pt"></p>
                         </div>
                         <div class="col-md-12">
-                            <button id="submit" type="button" class="btn btn-primary col-8" onclick="ajaxLogin()" disabled>로그인</button>
+                            <button id="submit" type="button" class="btn btn-primary col-8" onclick="ajaxLogin()" disabled>
+                                <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                                로그인
+                            </button>
                         </div>
                         <div class="my-3">
                             <div class="col text-center m-2">
@@ -47,7 +50,8 @@
                 </form>
             </div>
         </div>
-        <script src="/static/jquery/jquery-3.2.1.min.js"></script>
+{#        <script src="/static/jquery/jquery-3.2.1.min.js"></script>#}
+        <script src="/static/jquery/jquery-2.1.1.min.js"></script>
         <script>
             $(document).ready(function () {
                 $('#email').on('input change', function () {
@@ -86,8 +90,10 @@
         </script>
         <script>
             function ajaxLogin() {
-                const submitBtn = $('#submit')
+                const submitBtn = $('#submit');
+                const spinner = $('#spinner');
                 submitBtn.prop('disabled', true);
+                spinner.prop('hidden', false);
 
                 const email = $('#email').val()
                 const password = $('#password').val()
@@ -107,6 +113,7 @@
                                 document.querySelector("#error-msg").innerText = "이메일 또는 비밀번호를 확인해주세요"
                             }
                             $('#password').value = ""
+                            spinner.prop('hidden', true)
                         }
                     })
                 }

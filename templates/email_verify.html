@@ -34,7 +34,10 @@
                             <p id="error-msg" style="color: red; font-size: 10pt"></p>
                         </div>
                         <div class="col-md-12 form-group ">
-                            <button id="submit" style="margin-top: .5rem; width: auto; min-width: 12rem; margin-bottom: 2rem;" type="button" value="submit" class="btn btn-primary" onclick="ajaxEmail()" disabled>인증번호 보내기</button>
+                            <button id="submit" style="margin-top: .5rem; width: auto; min-width: 12rem; margin-bottom: 2rem;" type="button" value="submit" class="btn btn-primary" onclick="ajaxEmail()" disabled>
+                                <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" hidden></span>
+                                인증번호 보내기
+                            </button>
                         </div>
                         <div class="col  m-5"></div>
                     </div>
@@ -83,7 +86,10 @@
         <script>
             function ajaxEmail() {
                 const submitBtn = $('#submit')
+                const spinner = $('#spinner');
                 submitBtn.prop('disabled', true);
+                spinner.prop('hidden', false);
+
                 const name = $('#name').val()
                 const email = $('#email').val()
                 {% if is_finding_pw %}
@@ -96,26 +102,29 @@
                             'email': email,
                         },
                         success: function (res) {
-                            if (res.email_send === "fail") {
-                                document.querySelector("#error-msg").innerText = "이름 또는 이메일을 확인해주세요"
-                            }
-                            $.ajax({
-                                type: 'POST',
-                                url:'/verify',
-                                data: {
-                                    'csrfmiddlewaretoken': getCookie('csrftoken'),
-                                    'name': name,
-                                    'email': email,
-                                },
-                                success:function(res){
-                                    if(res.email_send === "success") {
-                                        location.href = "/verify"
-                                    } else if(res.email_send === "fail") {
-                                        document.querySelector("#error-msg").innerText = "이름 또는 이메일을 확인해주세요"
+                            if (res.findingpwRes === "fail") {
+                                document.querySelector("#error-msg").innerText = "이름 또는 이메일을 확인해주세요";
+                                spinner.prop('hidden', true);
+                            } else {
+                                $.ajax({
+                                    type: 'POST',
+                                    url:'/verify',
+                                    data: {
+                                        'csrfmiddlewaretoken': getCookie('csrftoken'),
+                                        'name': name,
+                                        'email': email,
+                                    },
+                                    success:function(res){
+                                        if(res.email_send === "success") {
+                                            location.href = "/verify"
+                                        } else if(res.email_send === "fail") {
+                                            document.querySelector("#error-msg").innerText = "이름 또는 이메일을 확인해주세요"
+                                        }
+                                        submitBtn.prop('disabled', false);
+                                        spinner.prop('hidden', true);
                                     }
-                                    submitBtn.prop('disabled', false);
-                                }
-                            })
+                                })
+                            }
                         }
                     })
                 {% else %}

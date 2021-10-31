@@ -42,9 +42,18 @@
             </div>
             <div class="col text-center">
                 <form class="row login_form" method="post">
-                    <h4 class="my-5" style="margin-top: 1.5rem;">프로필 편집</h4>
+                    <h4 class="" style="margin-top: 1.5rem;">프로필 편집</h4>
                     <div class="col text-center">
                         {% csrf_token %}
+                        <div class="col-md-12 form-group mini-first">
+                            <label>
+                                <img src="{{ user.profile_pic.url }}" class="profil-photo" alt="">
+                            </label>
+
+                        </div>
+                        <div style="margin: 10px 0px">
+                            <a href="">프로필 사진 변경</a>
+                        </div>
                         <div class="col-md-12 form-group mini-first">
                             <label for="" class="mini" style="margin-right: 1rem;">성명&nbsp;&nbsp;&nbsp;</label>
                             <label>
@@ -160,6 +169,12 @@
                     success:function(res){
                         if(res.settingRes === "success"){
                             location.href = "/"
+                        } else if(res.SignupRes === "nickname_exists") {
+                            document.querySelector("#error-msg").innerText = "이미 존재하는 닉네임 입니다"
+                        } else if(res.SignupRes === "email_exists") {
+                            document.querySelector("#error-msg").innerText = "이미 존재하는 이메일 입니다"
+                        } else if(res.SignupRes === "invalid_nickname") {
+                            document.querySelector("#error-msg").innerText = "닉네임은 영문 소문자, 숫자, '.', '_' 만 가능합니다"
                         }
                     }
                 })
